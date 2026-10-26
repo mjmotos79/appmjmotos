@@ -1,8 +1,8 @@
 /* O QUE É: o "porteiro" do app do CLIENTE. Guarda a tela, a logo e as fontes para o app abrir rápido.
    Os dados da moto (Supabase) nunca ficam guardados: o cliente sempre vê a situação de agora.
    Ao publicar versão nova, troque o número em V. */
-const V='mjm-cli-v2';
-const SHELL=['./','./index.html','./manifest-cliente.json','./logo.png','./icone-192.png','./icone-512.png'];
+const V='mjm-cli-v6';
+const SHELL=['./','./index.html','./manifest-cliente.json','./logo.png','./logo-3d.png','./icone-192.png','./icone-512.png'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);
  await Promise.all(SHELL.map(u=>c.add(u).catch(()=>{})));self.skipWaiting()})())});
 self.addEventListener('activate',e=>e.waitUntil((async()=>{

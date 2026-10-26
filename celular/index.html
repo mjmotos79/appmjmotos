@@ -53,6 +53,8 @@ nav button{font-size:10.5px;padding:8px 0}nav b{font-size:18px}
 .stb.on{background:var(--verm);border-color:var(--verm);color:#fff}
 .fts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.fts figure{margin:0;position:relative}.fts img{width:100%;border-radius:10px;display:block}
 .fts button{position:absolute;top:4px;right:4px}
+.sv-g{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.sv-g .sv{padding:11px 14px;font-size:15px}.sv-g .sv.on{border-color:var(--ok);color:var(--ok)}
+.vfoto{display:grid;place-items:center;aspect-ratio:4/3;text-align:center;margin:0;padding:8px;border:1px dashed var(--linha);border-radius:10px;color:var(--suave);font-size:14px}.vfoto input{display:none}
 
 /* MAPA DA MOTO */
 .mapa{background:#0a0a0c;border:1px solid var(--linha);border-radius:14px;padding:6px}
@@ -72,6 +74,12 @@ nav button{font-size:10.5px;padding:8px 0}nav b{font-size:18px}
 .zt{display:block;color:var(--suave);font-size:12px;font-weight:400}
 .sg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .sg button{background:#0a0a0c;border:1px solid var(--linha);color:var(--texto);border-radius:99px;padding:6px 12px;font:500 13px var(--corpo)}
+
+/* PONTO / perfis */
+nav{overflow-x:auto;-webkit-overflow-scrolling:touch}nav button{flex:0 0 auto;min-width:74px}
+.pf{width:56px;height:56px;border-radius:10px;object-fit:cover;border:1px solid var(--linha)}
+.pt-i{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha)}.pt-i:last-child{border:0}.pt-i div{flex:1;min-width:0}
+.pt-in{color:var(--ok)}.pt-out{color:var(--alerta)}
 </style></head><body>
 <section id="auth" class="oculto"><img src="logo.png" data-logo alt="">
 <form class="card" id="fAuth"><h2>Autorizar este celular</h2>
@@ -95,7 +103,11 @@ const dataBR=d=>String(d).split('-').reverse().join('/');
 const hora=d=>new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 const mk=t=>supabase.createClient(URL_,KEY,{auth:{persistSession:false},global:{headers:t?{'x-device-token':t}:{}}});
 let db,F=[],op=localStorage.getItem('mm_cel_op')||'',sess=null,tab='ini',dia=isoHoje(),CFG={};
-const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços'],['pr','🏷️','Promoções']];
+const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços'],['pr','🏷️','Promoções'],['pt','⏱️','Ponto'],['eq','👥','Equipe']];
+/* perfil: admin = tudo; mecanico = Serviços + Ponto; funcionario = só Ponto. Sem perfil cadastrado = como era antes (tudo) + Ponto. */
+const PERFIL_TABS={mecanico:['ma','pt'],funcionario:['pt']};
+function perfilAtual(){const f=F.find(x=>x.id===op);return f&&f.perfil||''}
+function tabsVisiveis(){const pf=perfilAtual();const ok=PERFIL_TABS[pf];return TABS.filter(x=>ok?ok.includes(x[0]):(pf==='admin'||!pf)&&(x[0]!=='eq'||pf==='admin'))}
 const GASTOS_NOMES=['Almoço / lanche','Combustível','Peça / material','Ferramenta','Limpeza','Água / luz / internet','Transporte / frete','Vale / adiantamento','Outros'];
 const FORMAS_REEMB=['Dinheiro','Pix','Estorno no cartão','Outro'];
 function toast(m,e){const t=$('#toast');t.textContent=m;t.className=e?'err':'';clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add('oculto'),e?5000:2500)}
@@ -163,7 +175,7 @@ async function iniciar(){
 function opNome(){return(F.find(f=>f.id===op)||{}).nome||''}
 function desenha(){$('#btnOp').textContent=opNome()||'Quem é você?';$('#btnOp').onclick=escolherOp}
 function escolherOp(){sheet(`<h2>Quem está usando?</h2>${F.map(f=>`<button class="btn sec" style="width:100%;margin-bottom:8px;padding:14px;font-size:17px" data-o="${f.id}">${esc(f.nome)}</button>`).join('')}`);
- $('#sheetIn').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;op=b.dataset.o;localStorage.setItem('mm_cel_op',op);sess=null;fecha();desenha();ir(tab)}}
+ $('#sheetIn').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;op=b.dataset.o;localStorage.setItem('mm_cel_op',op);sess=null;pareVigia();fecha();desenha();ir(tab)}}
 /* ---- senha (uma vez por sessão) ---- */
 function pedeSenha(perm,titulo){return new Promise((ok,no)=>{
  if(sess)return ok(sess);
@@ -181,6 +193,73 @@ function pedeSenha(perm,titulo){return new Promise((ok,no)=>{
    if(h&&rec&&rec.h===h&&rec.ok.includes(perm||'')){sess={id,pin,nome,offline:true};fecha();ok(sess)}
    else $('#sErr').textContent='Sem internet: só entra offline quem já entrou antes neste celular, com a mesma senha.'}}})}
 
+
+/* ===== PONTO =====
+   O que é: bater ponto com selfie + GPS (só dentro do raio da oficina). Para que serve: ficar registrado dia, hora de entrada e de saída.
+   Limite do navegador: o GPS só é lido com o app ABERTO. Se a pessoa sair da oficina com o app aberto por 1 min, a saída é registrada
+   sozinha (com a hora em que ela saiu). Se fechar o app, ela precisa bater a saída (ou o admin vê "entrada sem saída"). */
+const distM=(a,b,c,d)=>{const t=x=>x*Math.PI/180,u=t(c-a),v=t(d-b),h=Math.sin(u/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(v/2)**2;return 12742000*Math.asin(Math.sqrt(h))};
+const gps=()=>new Promise((ok,no)=>{if(!navigator.geolocation)return no(new Error('Este aparelho não liberou GPS para o navegador.'));
+ navigator.geolocation.getCurrentPosition(p=>ok(p.coords),e=>no(new Error(e.code===1?'Libere a Localização para este app (Configurações do celular → Apps → MJ Motos → Permissões → Localização).':'Não consegui pegar o GPS. Vá para um lugar aberto e tente de novo.')),{enableHighAccuracy:true,timeout:20000,maximumAge:0})});
+const selfie=()=>new Promise((ok,no)=>{const i=document.createElement('input');i.type='file';i.accept='image/*';i.setAttribute('capture','user');
+ i.onchange=()=>{const f=i.files[0];if(!f)return no(new Error('Tire a selfie para bater o ponto.'));const im=new Image();
+  im.onload=()=>{const k=Math.min(1,480/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(im.src);ok(c.toDataURL('image/jpeg',.6))};
+  im.onerror=()=>no(new Error('Foto inválida. Tente de novo.'));im.src=URL.createObjectURL(f)};
+ i.addEventListener('cancel',()=>no(new Error('Tire a selfie para bater o ponto.')));i.click()});
+const tol=g=>Math.min(g.accuracy||0,50);
+let wid=null,fora=null;
+function pareVigia(){if(wid!=null)navigator.geolocation.clearWatch(wid);wid=null;fora=null}
+function vigia(s,C){pareVigia();if(!C||C.lat==null||!navigator.geolocation)return;
+ wid=navigator.geolocation.watchPosition(p=>{const g=p.coords,d=distM(g.latitude,g.longitude,+C.lat,+C.lng);
+  if(d>+C.raio+tol(g)){if(!fora)fora=Date.now();
+   else if(Date.now()-fora>=60000){const quando=new Date(fora).toISOString();pareVigia();
+    rpc('pdv_ponto_bater',{p_func:s.id,p_pin:s.pin,p_tipo:'saida',p_lat:g.latitude,p_lng:g.longitude,p_prec:g.accuracy,p_foto:null,p_auto:true,p_quando:quando})
+     .then(()=>{toast('Você saiu da oficina: saída registrada automaticamente.');if(tab==='pt')telaPt()}).catch(()=>{})}}
+  else fora=null},()=>{},{enableHighAccuracy:true,maximumAge:15000})}
+const ptHora=d=>new Date(d).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+const ptLinha=x=>`<div class="pt-i">${x.foto?`<img class="pf" src="${x.foto}" data-foto="1" alt="">`:'<div class="pf" style="display:grid;place-items:center;flex:0 0 56px">🚪</div>'}<div><b>${esc(x.nome||'')}</b><br><span class="${x.tipo==='entrada'?'pt-in':'pt-out'}">${x.tipo==='entrada'?'Entrada':'Saída'}${x.sistema?' (fechado à meia-noite)':x.auto?' (automática)':''}</span> · ${ptHora(x.criado_em)}<br><small class="mu">${x.dist_m!=null?Math.round(x.dist_m)+' m da oficina':'sem distância'}</small></div></div>`;
+const zoomFoto=e=>{const i=e.target.closest('[data-foto]');if(i)sheet(`<img src="${i.src}" style="width:100%;border-radius:12px"><button class="btn" onclick="fecha()">Fechar</button>`)};
+async function telaPt(){
+ $('#view').innerHTML='<p class="mu">Carregando…</p>';
+ let s;try{s=await pedeSenha(null,'Senha para bater o ponto')}catch{return $('#view').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaPt()">Digitar senha</button></div>'}
+ const[ini,fim]=limites(isoHoje());let L,C;
+ try{[L,C]=await Promise.all([rpc('pdv_ponto_listar',{p_func:s.id,p_pin:s.pin,p_ini:ini.toISOString(),p_fim:fim.toISOString(),p_todos:false}),rpc('pdv_ponto_cfg_obter')])}
+ catch(e){if(!e.net)sess=null;return $('#view').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e).replace('ATUALIZAR-*.sql','PONTO.sql'))}</p><button class="btn" onclick="telaPt()">Tentar de novo</button></div>`}
+ L=L||[];const ult=L[0],dentro=ult&&ult.tipo==='entrada',prox=dentro?'saida':'entrada',semLocal=!C||C.lat==null;
+ if(dentro)vigia(s,C);else pareVigia();
+ $('#view').innerHTML=`<div class="card y"><small class="mu">${esc(s.nome||opNome())}</small><div class="big ${dentro?'ok':'al'}">${dentro?'Trabalhando':'Fora do expediente'}</div>
+  ${dentro?`<small class="mu">Entrada às ${hora(ult.criado_em)}. Deixe o app aberto: se você sair da oficina por 1 min, a saída é registrada sozinha.</small>`:''}
+  ${semLocal?'<p class="erro">A localização da oficina ainda não foi cadastrada. Peça ao administrador (aba Equipe).</p>':''}
+  <button class="btn" id="ptB" ${semLocal?'disabled':''}>${dentro?'🔴 Bater SAÍDA':'🟢 Bater ENTRADA'} (selfie + GPS)</button></div>
+  <div class="card"><h2>Hoje</h2>${L.length?L.map(ptLinha).join(''):'<p class="mu">Nenhum registro hoje.</p>'}</div>`;
+ $('#view').onclick=zoomFoto;
+ $('#ptB').onclick=async()=>{const b=$('#ptB');b.disabled=true;const txt=b.textContent;
+  try{b.textContent='Tire a selfie…';const foto=await selfie();b.textContent='Pegando localização…';const g=await gps();
+   const d=distM(g.latitude,g.longitude,+C.lat,+C.lng);
+   if(d>+C.raio+tol(g))throw new Error(`Você está a ${Math.round(d)} m da oficina (limite ${C.raio} m). Vá até a oficina para bater o ponto.`);
+   b.textContent='Enviando…';
+   await rpc('pdv_ponto_bater',{p_func:s.id,p_pin:s.pin,p_tipo:prox,p_lat:g.latitude,p_lng:g.longitude,p_prec:g.accuracy,p_foto:foto,p_auto:false,p_quando:null});
+   toast(prox==='entrada'?'Entrada registrada às '+hora(new Date())+'.':'Saída registrada às '+hora(new Date())+'.');telaPt()}
+  catch(e){toast(e.message,1);b.disabled=false;b.textContent=txt}}}
+/* ---- EQUIPE (admin): quem bateu ponto + local da oficina ---- */
+async function telaEq(){
+ $('#view').innerHTML='<p class="mu">Carregando…</p>';
+ let s;try{s=await pedeSenha(null,'Senha do administrador')}catch{return $('#view').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaEq()">Digitar senha</button></div>'}
+ const[ini,fim]=limites(dia);let L,C;
+ try{[L,C]=await Promise.all([rpc('pdv_ponto_listar',{p_func:s.id,p_pin:s.pin,p_ini:ini.toISOString(),p_fim:fim.toISOString(),p_todos:true}),rpc('pdv_ponto_cfg_obter')])}
+ catch(e){if(!e.net)sess=null;return $('#view').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e).replace('ATUALIZAR-*.sql','PONTO.sql'))}</p><button class="btn" onclick="telaEq()">Tentar de novo</button></div>`}
+ L=L||[];C=C||{};
+ /* quem está com entrada aberta: último registro de cada pessoa no dia */
+ const ult={};[...L].reverse().forEach(x=>ult[x.func_id]=x);const abertos=Object.values(ult).filter(x=>x.tipo==='entrada');
+ $('#view').innerHTML=barDia()+`<div class="card"><h2>Na oficina agora</h2>${abertos.length?abertos.map(x=>`<div class="row"><b>${esc(x.nome)}</b><span class="ok">desde ${hora(x.criado_em)}</span></div>`).join(''):'<p class="mu">Ninguém com entrada aberta neste dia.</p>'}</div>
+  <div class="card"><h2>Registros do dia</h2>${L.length?L.map(ptLinha).join(''):'<p class="mu">Sem registros.</p>'}</div>
+  <div class="card"><h2>Local da oficina</h2><p class="mu">${C.lat!=null?`Cadastrado. Raio de ${C.raio} m.`:'Ainda não cadastrado: ninguém consegue bater ponto.'}</p>
+  <label>Raio permitido (metros)<input id="eqR" type="number" inputmode="numeric" value="${C.raio||100}"></label>
+  <div class="erro" id="eqE"></div><button class="btn" id="eqS">📍 Usar minha localização agora como a oficina</button><small class="mu">Faça isso estando dentro da oficina.</small></div>`;
+ ligaDia(telaEq);$('#view').onclick=zoomFoto;
+ $('#eqS').onclick=async()=>{const b=$('#eqS');b.disabled=true;$('#eqE').textContent='';
+  try{const g=await gps();await rpc('pdv_ponto_cfg_salvar',{p_func:s.id,p_pin:s.pin,p_lat:g.latitude,p_lng:g.longitude,p_raio:Math.max(30,parseInt($('#eqR').value)||100)});toast('Local da oficina salvo.');telaEq()}
+  catch(e){$('#eqE').textContent=e.message;b.disabled=false}}}
 /* ---- PROMOÇÕES: o que você cadastra aqui aparece na aba Promoções do app do cliente ---- */
 let PRL=[];
 async function telaPr(){
@@ -264,8 +343,8 @@ function esLista(){
    return `<details class="card" data-g="${esc(k)}" ${ES.op.has(k)?'open':''}><summary style="display:flex;justify-content:space-between;gap:8px;font-weight:600;cursor:pointer"><span>${esc(k)} <span class="mu">· ${a.length}</span></span>${al?`<span class="al">⚠ ${al}</span>`:''}</summary>${a.map(lin).join('')}</details>`}).join('')}
  else h=`<div class="card">${l.slice(0,ES.max).map(lin).join('')}</div>`+(l.length>ES.max?`<button class="btn sec" id="esM" style="width:100%">Mostrar mais (${l.length-ES.max})</button>`:'');
  $('#esL').innerHTML=h}
-function ir(t){tab=t;$('#nav').innerHTML=TABS.map(x=>`<button class="${x[0]===t?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('');
- ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa,pr:telaPr}[t])()}
+function ir(t){const vis=tabsVisiveis();if(!vis.some(x=>x[0]===t))t=vis[0][0];tab=t;$('#nav').innerHTML=vis.map(x=>`<button class="${x[0]===t?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('');
+ ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa,pr:telaPr,pt:telaPt,eq:telaEq}[t])()}
 const barDia=()=>`<div class="card"><label style="margin:0">Dia<input type="date" id="dd" value="${dia}"></label></div>`;
 const ligaDia=f=>{$('#dd').onchange=e=>{dia=e.target.value||isoHoje();f()}};
 const limites=d=>{const x=new Date(d+'T12:00:00');return[new Date(x.getFullYear(),x.getMonth(),x.getDate()),new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)]};
@@ -537,11 +616,28 @@ function formMo(o){o=o||{};
 async function abreMo(o){if(!o)return;
  let d={pecas:[],fotos:[]};try{d=await rpc('pdv_os_acomp_detalhe',{p_id:o.id})||d}catch{}
  const i=stInfo(o.status);
+ const SV=await carregaServ(),isS=x=>/^\[S\]/.test(x.descricao||''),isA=x=>/^\[AV\]/.test(x.descricao||''),isV=f=>/^\[V\]/.test(f.legenda||'');
+ const dS=d.pecas.filter(isS),dA=d.pecas.filter(isA),dV=d.fotos.filter(isV);
+ d={...d,pecas:d.pecas.filter(x=>!isS(x)&&!isA(x)),fotos:d.fotos.filter(f=>!isV(f))};
+ const sNome=x=>String(x.descricao).replace(/^\[S\]\s*/,'').split(' | ')[0],sQuem=x=>String(x.descricao).split(' | ')[1]||'',aTxt=x=>String(x.descricao).replace(/^\[AV\]\s*/,'');
+ const VS=['Frente','Traseira','Lado esquerdo','Lado direito'],vSlot=n=>dV.find(f=>f.legenda==='[V] '+n),vAv=dV.filter(f=>!VS.some(n=>f.legenda==='[V] '+n));
+ const blocoVist=`<h2 style="margin-top:16px">🔍 Vistoria da moto</h2><p class="mu" style="margin:0 0 8px;font-size:13px">Antes de mexer: foto dos 4 lados e registre qualquer arranhão ou peça quebrada. Fica salvo nesta moto.</p>
+ <div class="fts">${VS.map(n=>{const f=vSlot(n);return f?`<figure><img src="${esc(f.imagem)}" alt=""><small class="mu">✅ ${n}</small><button class="btn sec" data-df="${f.id}" style="padding:2px 8px;background:#000a">✕</button></figure>`:`<label class="vfoto">📷 ${n}<input type="file" accept="image/*" capture="environment" data-vf="${n}"></label>`}).join('')}</div>
+ ${vAv.length?`<div class="fts">${vAv.map(f=>`<figure><img src="${esc(f.imagem)}" alt=""><small class="mu">${esc(String(f.legenda).replace(/^\[V\]\s*/,''))}</small><button class="btn sec" data-df="${f.id}" style="padding:2px 8px;background:#000a">✕</button></figure>`).join('')}</div>`:''}
+ <b style="display:block;margin-top:8px">Avarias (arranhão, amassado, peça quebrada)</b>
+ ${dA.map(x=>`<div class="row"><span>⚠️ ${esc(aTxt(x))}<br><small>${ptHora(x.criado_em)}</small></span><button class="btn sec" data-dp="${x.id}" style="padding:4px 10px">tirar</button></div>`).join('')||'<p class="mu" style="margin:4px 0">Nenhuma avaria registrada.</p>'}
+ <input id="avTxt" placeholder="Ex.: Arranhão no tanque lado esquerdo" autocomplete="off" autocapitalize="sentences" style="margin-top:6px">
+ <div class="g2" style="margin-top:6px"><button class="btn sec" id="avAdd" style="width:100%;padding:12px">Registrar avaria</button><label class="btn sec" style="width:100%;padding:12px;text-align:center;box-sizing:border-box">📷 Com foto<input id="avFoto" type="file" accept="image/*" capture="environment" style="display:none"></label></div>
+ <button class="btn sec" id="avZero" style="width:100%;margin-top:6px;padding:10px">✔ Moto sem avarias aparentes</button>`;
+ const blocoServ=`<h2 style="margin-top:16px">🔧 Serviços da revisão</h2><p class="mu" style="margin:0;font-size:13px">Toque no serviço que vai fazer: a revisão começa e o cliente já vê. Fica registrado quem fez e a hora.</p>
+ <div class="sv-g">${SV.length?SV.map(x=>{const f=dS.some(p=>sNome(p)===x.nome);return`<button class="btn sec sv ${f?'on':''}" data-sv="${x.id}">${f?'✅ ':''}${esc(x.nome)}</button>`}).join(''):'<p class="mu">Nenhum serviço na lista (cadastre na aba Serviços do PDV) ou sem internet.</p>'}</div>
+ ${dS.map(x=>`<div class="row"><span>✅ ${esc(sNome(x))}<br><small>${ptHora(x.criado_em)}${sQuem(x)?' · '+esc(sQuem(x)):''}</small></span><button class="btn sec" data-dp="${x.id}" style="padding:4px 10px">tirar</button></div>`).join('')}`;
  sheet(`<div class="row" style="border:0;padding:0"><h2 style="margin:0">Nº ${String(o.numero).padStart(4,'0')} · ${esc(motoNome(o))}</h2><button class="btn sec" id="moX">Fechar</button></div>
  ${o.placa?`<span class="placa">${esc(o.placa)}</span>`:''}<p class="mu">${esc(o.cliente)}${o.telefone?' · '+esc(o.telefone):''}</p>
  <p><b>Problema:</b> ${esc(o.problema)}</p>${o.observacao?`<p class="mu">${esc(o.observacao)}</p>`:''}${o.chave?`<p class="mu">Chave: ${esc(o.chave)}</p>`:''}
  <h2 style="margin-top:14px">Situação</h2><div class="g2">${ST.map(x=>`<button class="btn sec stb ${x[0]===o.status?'on':''}" data-s="${x[0]}" style="width:100%;padding:12px">${x[1]}</button>`).join('')}</div>
  <button class="btn" id="moZap">Enviar link ao cliente (WhatsApp)</button><button class="btn sec" id="moCopia" style="width:100%;margin-top:8px;padding:12px">Copiar link de acompanhamento</button>
+ ${blocoVist}${blocoServ}
  <h2 style="margin-top:16px">Peças trocadas</h2>
  ${d.pecas.map(p=>`<div class="row"><span>${+p.qtd}× ${esc(p.descricao)}${p.zona&&ZNOME[p.zona]?`<br><small>${esc(ZNOME[p.zona])}</small>`:''}</span><button class="btn sec" data-dp="${p.id}" style="padding:4px 10px">tirar</button></div>`).join('')||'<p class="mu">Nenhuma peça lançada ainda.</p>'}
  <label style="display:block;margin-top:10px;font-weight:600">✏️ O que foi trocado? <span class="mu" style="font-weight:400">(escreva o nome, mesmo que não esteja nas sugestões)</span></label><div class="g2" style="margin-top:6px"><input id="pNome" placeholder="Ex.: Retentor da bengala, Cabo de embreagem…" autocomplete="off" autocapitalize="sentences"><input id="pQtd" type="number" inputmode="numeric" min="1" value="1" aria-label="Quantidade"></div><p class="mu" style="margin:6px 0 0;font-size:13px">Tocar no desenho é opcional: sem tocar, a peça entra só na lista (o cliente vê do mesmo jeito).</p><button class="btn" id="pAdd" style="margin-top:8px">Adicionar peça</button>
@@ -562,11 +658,25 @@ async function abreMo(o){if(!o)return;
  $('#pNome').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#pAdd').click()}};
  $('#pAdd').onclick=async()=>{const nome=$('#pNome').value.trim();if(!nome)return toast('Escreva o nome da peça.',1);
   try{await mut('pdv_os_peca_add',{p_id:o.id,p_desc:nome,p_qtd:numBR($('#pQtd').value)||1,...(zS?{p_zona:zS}:{})},'peça '+nome);refaz()}catch(e){toast(semBanco(e),1)}};
+ const volta=async()=>{if(o.status==='aberta'){try{await mut('pdv_os_livre_status',{p_id:o.id,p_status:'aberta'},'situação')}catch{}}};
+ const sobeV=async(f,leg)=>{toast('Preparando foto…');const img=await comprime(f);await mut('pdv_os_foto_add',{p_id:o.id,p_imagem:img,p_legenda:leg},'vistoria '+leg)};
+ $('#sheetIn').onchange=async ev=>{const t=ev.target,f=t.files&&t.files[0];if(!f)return;
+  if(t.dataset.vf){try{const ant=vSlot(t.dataset.vf);if(ant)await mut('pdv_os_foto_del',{p_foto:ant.id},'trocar foto');await sobeV(f,'[V] '+t.dataset.vf);await volta();refaz()}catch(e){toast(e.message,1)}}
+  else if(t.id==='avFoto'){const tx=$('#avTxt').value.trim();if(!tx){t.value='';return toast('Escreva qual é a avaria e escolha a foto de novo.',1)}
+   try{await mut('pdv_os_peca_add',{p_id:o.id,p_desc:'[AV] '+tx,p_qtd:1},'avaria '+tx);await sobeV(f,'[V] Avaria: '+tx);await volta();refaz()}catch(e){toast(e.message,1)}}};
+ const avMais=async tx=>{try{await mut('pdv_os_peca_add',{p_id:o.id,p_desc:'[AV] '+tx,p_qtd:1},'avaria '+tx);await volta();refaz()}catch(e){toast(semBanco(e),1)}};
+ $('#avAdd').onclick=()=>{const tx=$('#avTxt').value.trim();if(!tx)return toast('Escreva qual é a avaria.',1);avMais(tx)};
+ $('#avZero').onclick=()=>avMais('Sem avarias aparentes na entrada');
  $('#fArq').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;toast('Preparando foto…');
   try{const img=await comprime(f);await mut('pdv_os_foto_add',{p_id:o.id,p_imagem:img,p_legenda:$('#fLeg').value.trim()},'foto');refaz()}catch(e){toast(e.message,1)}};
  $('#sheetIn').onclick=async e=>{
-  const b=e.target.closest('[data-s]'),dp=e.target.closest('[data-dp]'),df=e.target.closest('[data-df]'),zz=e.target.closest('#mapaMo [data-z]'),sg=e.target.closest('[data-sg]');
-  if(zz){zS=zS===zz.dataset.z?'':zz.dataset.z;pintaZ()}
+  const b=e.target.closest('[data-s]'),dp=e.target.closest('[data-dp]'),df=e.target.closest('[data-df]'),zz=e.target.closest('#mapaMo [data-z]'),sg=e.target.closest('[data-sg]'),sv=e.target.closest('[data-sv]');
+  if(sv){const x=SV.find(y=>String(y.id)===sv.dataset.sv);if(!x)return;
+   if(dS.some(p=>sNome(p)===x.nome))return toast('Esse serviço já foi lançado. Para desfazer, toque em "tirar".',1);
+   try{await mut('pdv_os_peca_add',{p_id:o.id,p_desc:'[S] '+x.nome+(opNome()?' | '+opNome():''),p_qtd:1},'serviço '+x.nome);
+    if(o.status==='aberta'){await mut('pdv_os_livre_status',{p_id:o.id,p_status:'andamento'},'situação');o.status='andamento'}
+    refaz()}catch(er){toast(semBanco(er),1)}}
+  else if(zz){zS=zS===zz.dataset.z?'':zz.dataset.z;pintaZ()}
   else if(sg){$('#pNome').value=sg.dataset.sg;$('#pNome').focus()}
   else if(b){try{await mut('pdv_os_livre_status',{p_id:o.id,p_status:b.dataset.s},'situação');o.status=b.dataset.s;refaz()}catch(er){toast(er.message,1)}}
   else if(dp){try{await mut('pdv_os_peca_del',{p_peca:dp.dataset.dp},'tirar peça');refaz()}catch(er){toast(er.message,1)}}
@@ -574,6 +684,8 @@ async function abreMo(o){if(!o)return;
   else if(e.target.id==='moEx'){if(!confirm('Excluir esta moto e tudo dela (peças e fotos)? Não dá para desfazer.'))return;
    let s;try{s=await pedeSenha(null,'Senha para excluir moto')}catch{return refaz()}
    try{await rpc('pdv_os_excluir',{p_func:s.id,p_pin:s.pin,p_id:o.id});fecha();toast('Moto excluída.');telaMo()}catch(er){toast(er.message,1);refaz()}}}}
+let SVC=[];
+async function carregaServ(){try{const r=await db.from('pdv_servicos').select('*').order('nome');if(!r.error&&r.data){SVC=r.data.filter(x=>x.ativo!==false);idbSet('svc',SVC)}else throw 0}catch{try{SVC=(await idbGet('svc'))||SVC}catch{}}return SVC}
 function comprime(file){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(file);
  im.onload=()=>{let w=im.width,h=im.height;const m=1100;if(Math.max(w,h)>m){const k=m/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k)}
   const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);

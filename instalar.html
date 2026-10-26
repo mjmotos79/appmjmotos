@@ -12,7 +12,7 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:#0a0a0c;color:var(--t);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
 main{max-width:480px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom))}
-.top{text-align:center;margin-bottom:18px}.top img{width:84px;height:84px;border-radius:50%;object-fit:contain}
+.top{text-align:center;margin-bottom:18px}.top img{width:150px;height:150px;object-fit:contain;filter:drop-shadow(0 0 22px rgba(225,16,26,.55))}
 h1{margin:10px 0 2px;font-size:26px;font-style:italic;text-transform:uppercase;letter-spacing:.5px}.top p{margin:0;color:var(--s)}
 .tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .tabs button{padding:14px 8px;border-radius:14px;border:2px solid var(--l);background:#16161a;color:var(--s);font:600 17px inherit;font-family:inherit}
@@ -37,11 +37,11 @@ small{color:var(--s)}
 </head>
 <body>
 <main>
- <div class="top"><img src="logo.png" alt=""><h1>MJ Motos</h1><p>Acompanhe sua moto pelo celular</p></div>
+ <div class="top"><img src="logo-3d.png" alt="MJ Motos"><h1>MJ Motos</h1><p>Acompanhe sua moto pelo celular</p></div>
  <div class="tabs"><button id="tA" onclick="escolhe('a',true)">Android</button><button id="tI" onclick="escolhe('i',true)">iPhone</button></div>
 
  <section id="pA" hidden>
-  <div class="estado" id="est"><div class="spin"></div><div><b>Baixando o app…</b><span>Em alguns segundos o download começa sozinho.</span></div></div>
+  <div class="estado" id="est"><div class="spin"></div><div><b>Baixando o app…</b><span>No Android o acompanhamento só funciona pelo app. O download começa sozinho.</span></div></div>
   <a class="btn" id="bx" href="downloads/MJ-Motos.apk" download="MJ-Motos.apk">Baixar o app de novo</a>
   <div class="av" style="margin-top:14px">Abriu este link dentro do WhatsApp ou Instagram e não baixou? Toque nos <b>três pontinhos ⋮</b> e escolha <b>Abrir no Chrome</b>.</div>
   <div class="card"><h2>Como instalar (leva 1 minuto)</h2>
@@ -70,7 +70,7 @@ small{color:var(--s)}
 </main>
 <script>
 const ua=navigator.userAgent, ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), and=/Android/i.test(ua);
-const jaApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+const jaApp=!!window.Capacitor||location.hostname==='localhost'||(ios&&(matchMedia('(display-mode: standalone)').matches||navigator.standalone));
 let baixou=false;
 function baixa(){const a=document.createElement('a');a.href='downloads/MJ-Motos.apk';a.download='MJ-Motos.apk';document.body.appendChild(a);a.click();a.remove();baixou=true;
  document.getElementById('est').innerHTML='<div style="font-size:26px">✅</div><div><b>Download iniciado</b><span>Veja a notificação de download e siga os passos abaixo.</span></div>'}
@@ -81,7 +81,7 @@ function escolhe(o,manual){
  if(o==='a'&&!and){document.getElementById('est').hidden=true;document.getElementById('bx').textContent='Baixar o app (Android)'}}
 document.getElementById('avS').hidden=!(ios&&/CriOS|FxiOS|EdgiOS|Instagram|FBAN|FBAV/.test(ua));
 if(jaApp)location.replace('index.html');
-else escolhe(ios?'i':'a',false);
+else{if(and)document.querySelector('.tabs').hidden=true;escolhe(ios?'i':'a',false)}
 </script>
 </body>
 </html>

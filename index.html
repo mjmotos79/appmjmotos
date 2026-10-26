@@ -165,7 +165,6 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 @keyframes mjSway{0%,100%{transform:rotateY(0) rotateX(0)}25%{transform:rotateY(9deg) rotateX(2deg)}75%{transform:rotateY(-9deg) rotateX(-2deg)}}
 @keyframes mjSh{0%{background-position:130% 0}55%,100%{background-position:-40% 0}}
 @keyframes mjPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
@@ -175,9 +174,10 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 (function(){
  var el=document.getElementById('mjs');if(!el)return;
  var rm=false,visto=false;
- try{rm=matchMedia('(prefers-reduced-motion:reduce)').matches;visto=sessionStorage.getItem('mj_splash')==='1'}catch(e){}
- if(window.__mjBloq||rm||visto){el.remove();return}
- try{sessionStorage.setItem('mj_splash','1')}catch(e){}
+ try{var ult=+sessionStorage.getItem('mj_splash_t')||0;visto=Date.now()-ult<6000}catch(e){}
+ /* Não usa mais "prefers-reduced-motion": no Android, quem desliga as animações do aparelho/economia de bateria fazia a abertura sumir. Só some se acabou de aparecer (recarregar a página) ou tocar para pular. */
+ if(window.__mjBloq||visto){el.remove();return}
+ try{sessionStorage.setItem('mj_splash_t',String(Date.now()))}catch(e){}
  var pal=el.querySelector('.pal'),bar=el.querySelector('.bar i'),cv=el.querySelector('canvas'),cx=cv.getContext('2d');
  var h='<div class="rot">';for(var i=9;i>=1;i--)h+='<img class="e" src="logo-3d.png" alt="" style="transform:translateZ(-'+(i*4)+'px)">';
  pal.innerHTML=h+'<img src="logo-3d.png" alt="MJ Motos"><div class="sh"></div></div>';
@@ -186,35 +186,88 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
  size();addEventListener('resize',size);
  var R='#e1101a',T_FLASH=2.5,T_FIM=4.3;
  /* motos: d = profundidade (0 longe, 1 perto), dir = sentido, t0 = quando sai, du = duração */
- var B=[{d:.5,dir:1,t0:.15,du:.85},{d:.33,dir:-1,t0:.4,du:.8},{d:.62,dir:1,t0:.78,du:.8},{d:.4,dir:-1,t0:1.05,du:.75},{d:.55,dir:1,t0:1.3,du:1.15,hero:1}];
- function wheel(wx,rot){cx.save();cx.translate(wx,-1);
-  cx.beginPath();cx.arc(0,0,1,0,7);cx.fillStyle='#0b0b0d';cx.fill();
-  cx.lineWidth=.17;cx.strokeStyle=R;cx.beginPath();cx.arc(0,0,.78,0,7);cx.stroke();
-  cx.lineWidth=.1;cx.strokeStyle='#2c2c33';cx.beginPath();cx.arc(0,0,.97,0,7);cx.stroke();
-  cx.rotate(rot);cx.lineWidth=.06;cx.strokeStyle='#8a8a92';
-  for(var k=0;k<5;k++){cx.rotate(1.2566);cx.beginPath();cx.moveTo(0,0);cx.lineTo(.7,0);cx.stroke()}
-  cx.beginPath();cx.arc(0,0,.34,0,7);cx.strokeStyle='#b5b5bd';cx.lineWidth=.05;cx.stroke();
-  cx.restore()}
+ var B=[{d:.5,dir:1,t0:.15,du:.95,w:.62},{d:.34,dir:-1,t0:.4,du:.85,w:.5},{d:.62,dir:1,t0:.72,du:.85,w:.7},{d:.4,dir:-1,t0:1.0,du:.8,w:.55},{d:.58,dir:1,t0:1.2,du:1.25,hero:1,w:.66}];
+ function grad(x0,y0,x1,y1,st){var g=cx.createLinearGradient(x0,y0,x1,y1);for(var k=0;k<st.length;k++)g.addColorStop(st[k][0],st[k][1]);return g}
  function poly(a,fill,stroke,lw){cx.beginPath();cx.moveTo(a[0],a[1]);for(var k=2;k<a.length;k+=2)cx.lineTo(a[k],a[k+1]);cx.closePath();
-  if(fill){cx.fillStyle=fill;cx.fill()}if(stroke){cx.lineWidth=lw||.05;cx.strokeStyle=stroke;cx.stroke()}}
+  if(fill){cx.fillStyle=fill;cx.fill()}if(stroke){cx.lineWidth=lw||.05;cx.lineJoin='round';cx.strokeStyle=stroke;cx.stroke()}}
  function ln(x1,y1,x2,y2,w,c){cx.beginPath();cx.moveTo(x1,y1);cx.lineTo(x2,y2);cx.lineWidth=w;cx.strokeStyle=c;cx.lineCap='round';cx.stroke()}
- function bike(x,gy,u,dir,rot,al){
+ function wheel(wx,rot){cx.save();cx.translate(wx,-1);
+  cx.beginPath();cx.arc(0,0,1,0,7);cx.fillStyle='#07070a';cx.fill();
+  cx.lineWidth=.05;cx.strokeStyle='#33333b';cx.beginPath();cx.arc(0,0,.93,0,7);cx.stroke();
+  cx.lineWidth=.025;cx.strokeStyle='#1d1d22';for(var k=0;k<2;k++){cx.beginPath();cx.arc(0,0,.97-k*.07,0,7);cx.stroke()}
+  cx.lineWidth=.14;cx.strokeStyle=grad(-.8,-.8,.8,.8,[[0,'#f4f5f8'],[.5,'#8d9097'],[1,'#d7d9de']]);cx.beginPath();cx.arc(0,0,.74,0,7);cx.stroke();
+  cx.lineWidth=.035;cx.strokeStyle=R;cx.beginPath();cx.arc(0,0,.64,0,7);cx.stroke();
+  cx.beginPath();cx.arc(0,0,.5,0,7);cx.fillStyle='rgba(60,60,68,.55)';cx.fill();
+  cx.lineWidth=.03;cx.strokeStyle='#9c9ea6';cx.beginPath();cx.arc(0,0,.5,0,7);cx.stroke();
+  cx.rotate(rot);
+  for(k=0;k<5;k++){cx.rotate(1.2566);cx.beginPath();cx.moveTo(.12,-.1);cx.lineTo(.7,-.17);cx.lineTo(.7,-.03);cx.lineTo(.12,.07);cx.closePath();cx.fillStyle=grad(0,-.1,0,.1,[[0,'#e9eaee'],[1,'#777a82']]);cx.fill()}
+  cx.beginPath();cx.arc(0,0,.19,0,7);cx.fillStyle='#b9bbc2';cx.fill();cx.beginPath();cx.arc(0,0,.08,0,7);cx.fillStyle='#232328';cx.fill();
+  cx.restore()}
+ function bike(x,gy,u,dir,rot,al,ang){
   cx.save();cx.translate(x,gy);cx.scale(u*dir,u);cx.globalAlpha=al;
+  var w=Math.min(1,ang/.6);
+  /* sombra no chão e faíscas do pneu traseiro */
+  cx.save();cx.translate(-2.1*w,.02);cx.scale(1,.11);cx.beginPath();cx.arc(0,0,3.3-1.9*w,0,7);cx.fillStyle='rgba(0,0,0,.55)';cx.fill();cx.restore();
+  if(w>.15){cx.lineCap='round';for(var s=0;s<5;s++){var sx=-2.4-Math.random()*.4,l=.3+Math.random()*1,sy=-.05-Math.random()*.55;cx.strokeStyle=s%2?'rgba(255,200,90,.95)':'rgba(255,110,40,.9)';cx.lineWidth=.06;cx.beginPath();cx.moveTo(sx,-.04);cx.lineTo(sx-l,sy);cx.stroke()}}
+  /* empina: gira em volta do eixo traseiro */
+  cx.translate(-2.1,-1);cx.rotate(-ang);cx.translate(2.1,1);
   wheel(-2.1,rot);wheel(2.1,rot);
-  ln(-2.1,-1,-.4,-.8,.16,'#222228');ln(2.15,-1,1.7,-2.55,.17,'#8a8a92');ln(.2,-.55,-2.3,-.95,.22,'#46464d');
-  poly([-.6,-.5,.9,-.5,1,-1.5,-.5,-1.7],'#16161b',R,.05);
-  cx.shadowColor=R;cx.shadowBlur=14;
-  poly([-2.75,-2,-1,-1.75,-.2,-2,.9,-2.3,1.5,-2,1.55,-1.5,.6,-1.2,-.6,-1.3,-2,-1.7],'#0d0d10',R,.06);
-  cx.shadowBlur=0;
-  poly([.1,-2.05,1.2,-2.25,1.3,-2.1,.3,-1.9],R);
-  poly([1.55,-2.55,2.15,-2.35,2.3,-2.05,1.7,-2],'#16161b',R,.05);
-  cx.shadowColor='#fff';cx.shadowBlur=12;poly([2.05,-2.3,2.28,-2.12,2,-2.08],'#fff');cx.shadowBlur=0;
-  ln(1.55,-2.75,1,-3,.1,'#aaa');
-  ln(-.3,-2,.5,-1.5,.36,'#17171c');ln(.5,-1.5,.3,-.85,.3,'#17171c');
-  poly([-.9,-1.95,.2,-3.05,.9,-3.1,.75,-2.75,0,-2.35,-.6,-1.8],'#101014',R,.05);
-  ln(.6,-2.9,1.1,-2.95,.16,'#17171c');
-  cx.beginPath();cx.arc(1,-3.45,.36,0,7);cx.fillStyle=R;cx.fill();
-  poly([1.1,-3.55,1.38,-3.45,1.3,-3.3,1.05,-3.35],'#111');
+  /* farol: feixe de luz */
+  cx.save();cx.beginPath();cx.moveTo(2.3,-2.85);cx.lineTo(8,-4.1);cx.lineTo(8,-1.6);cx.closePath();cx.fillStyle=grad(2.3,0,8,0,[[0,'rgba(255,245,235,.2)'],[1,'rgba(255,245,235,0)']]);cx.fill();cx.restore();
+  /* balança traseira, corrente e amortecedor */
+  ln(-.4,-1.05,-2.1,-1,.22,'#2e2e35');ln(-.4,-1.12,-2.1,-1.08,.06,'#6a6a73');
+  ln(-2.1,-.7,-.75,-.8,.035,'#8b8b93');
+  ln(-.55,-2.1,-.35,-1.05,.12,'#e1101a');
+  /* escapamento */
+  cx.save();cx.lineCap='round';cx.lineJoin='round';
+  cx.beginPath();cx.moveTo(1,-.95);cx.quadraticCurveTo(.95,-.35,.1,-.4);cx.lineTo(-1.2,-.5);cx.quadraticCurveTo(-2.1,-.65,-2.85,-1.6);
+  cx.lineWidth=.3;cx.strokeStyle='#4a4b52';cx.stroke();cx.lineWidth=.2;cx.strokeStyle=grad(0,-1.6,0,-.2,[[0,'#f2f3f6'],[.5,'#a0a2aa'],[1,'#55565d']]);cx.stroke();
+  cx.beginPath();cx.arc(-2.9,-1.68,.17,0,7);cx.fillStyle='#0a0a0c';cx.fill();cx.lineWidth=.05;cx.strokeStyle=R;cx.stroke();cx.restore();
+  /* motor */
+  poly([-.75,-.55,.95,-.55,1.25,-1,1.1,-1.95,-.35,-2.05,-.8,-1.35],grad(-.8,-2,1.2,-.5,[[0,'#3a3a42'],[.55,'#18181c'],[1,'#0c0c0f']]),'#4d4d56',.04);
+  for(var k=0;k<4;k++)ln(-.1+k*.32,-2.02,-.1+k*.32,-2.3+k*.02,.07,'#5b5b64');
+  cx.beginPath();cx.arc(.15,-1.1,.38,0,7);cx.fillStyle='#202026';cx.fill();cx.lineWidth=.04;cx.strokeStyle='#6c6c76';cx.stroke();
+  cx.beginPath();cx.arc(.15,-1.1,.12,0,7);cx.fillStyle='#e1101a';cx.fill();
+  /* garfo, freio e para-lama */
+  ln(2.1,-1,1.35,-3.05,.22,'#101015');ln(2.1,-1,1.82,-1.8,.17,'#d8b04a');ln(2.1,-1.0,1.82,-1.8,.05,'#fff3b8');
+  poly([2.42,-1.62,2.78,-1.5,2.72,-1.22,2.4,-1.36],'#e1101a','#ff6a5f',.03);
+  cx.beginPath();cx.arc(2.1,-1,1.17,-2.1,-.62);cx.lineWidth=.15;cx.strokeStyle='#e1101a';cx.lineCap='round';cx.stroke();
+  cx.beginPath();cx.arc(2.1,-1,1.2,-1.9,-.8);cx.lineWidth=.035;cx.strokeStyle='rgba(255,255,255,.55)';cx.stroke();
+  /* rabeta e lanterna */
+  cx.beginPath();cx.moveTo(-.6,-2.95);cx.bezierCurveTo(-1.3,-2.98,-2,-3.02,-2.75,-2.82);cx.lineTo(-2.8,-2.62);cx.bezierCurveTo(-2,-2.5,-1.2,-2.42,-.55,-2.4);cx.closePath();
+  cx.fillStyle=grad(0,-3.05,0,-2.4,[[0,'#ff4a3d'],[.5,'#c4121a'],[1,'#3d0408']]);cx.fill();cx.lineWidth=.035;cx.strokeStyle='rgba(255,110,95,.8)';cx.stroke();
+  cx.beginPath();cx.moveTo(-.9,-2.93);cx.bezierCurveTo(-1.6,-2.99,-2.2,-3.0,-2.65,-2.86);cx.lineWidth=.035;cx.strokeStyle='rgba(255,255,255,.55)';cx.stroke();
+  cx.save();cx.shadowColor='#ff2a20';cx.shadowBlur=10;poly([-2.76,-2.84,-2.9,-2.8,-2.9,-2.64,-2.78,-2.62],'#ff2a20');cx.restore();
+  /* banco */
+  poly([-.2,-2.95,-.9,-2.98,-1.0,-2.72,-.1,-2.62],'#0b0b0e','#2c2c33',.03);
+  /* tanque */
+  cx.save();cx.shadowColor=R;cx.shadowBlur=12;
+  cx.beginPath();cx.moveTo(1.3,-2.85);cx.bezierCurveTo(.9,-3.35,.05,-3.3,-.4,-2.85);cx.lineTo(-.35,-2.45);cx.bezierCurveTo(.3,-2.15,.95,-2.2,1.38,-2.5);cx.closePath();
+  cx.fillStyle=grad(0,-3.3,0,-2.2,[[0,'#ff4538'],[.45,'#c9121a'],[1,'#4a0509']]);cx.fill();cx.restore();
+  cx.beginPath();cx.moveTo(1.05,-3.1);cx.quadraticCurveTo(.3,-3.3,-.15,-2.85);cx.lineWidth=.07;cx.strokeStyle='rgba(255,255,255,.6)';cx.stroke();
+  /* carenagem, farol e para-brisa */
+  cx.beginPath();cx.moveTo(1.15,-3.3);cx.quadraticCurveTo(2.1,-3.45,2.38,-2.85);cx.lineTo(2.1,-2.4);cx.quadraticCurveTo(1.6,-2.45,1.25,-2.6);cx.closePath();
+  cx.fillStyle=grad(0,-3.4,0,-2.4,[[0,'#2a2a31'],[1,'#0c0c0f']]);cx.fill();cx.lineWidth=.05;cx.strokeStyle=R;cx.stroke();
+  cx.save();cx.shadowColor='#fff';cx.shadowBlur=16;poly([2.0,-3.05,2.36,-2.9,2.2,-2.66,1.95,-2.74],'#fff');cx.restore();
+  poly([1.45,-3.28,1.85,-3.85,2.0,-3.8,1.95,-3.25],'rgba(190,225,255,.28)');
+  ln(1.3,-3.12,.95,-3.2,.13,'#0d0d10');ln(1.5,-3.2,1.7,-3.62,.04,'#bbb');
+  /* ===== PILOTO ===== */
+  var jk=grad(-1.1,0,.2,0,[[0,'#6f090e'],[.5,'#e0171f'],[1,'#9a0d14']]);
+  /* perna (de trás) */
+  ln(-.55,-2.95,.6,-2.5,.55,'#15151a');ln(.6,-2.5,-.15,-1.1,.44,'#1b1b21');ln(.6,-2.5,-.15,-1.1,.1,'#e1101a');
+  poly([-.55,-1.08,.1,-1,.35,-.8,.3,-.62,-.5,-.62],'#08080a','#e1101a',.04);
+  /* tronco */
+  ln(-.55,-2.95,-.35,-4.25,1.0,jk);
+  ln(-.82,-3.0,-.6,-4.2,.1,'#111');
+  /* braço */
+  ln(-.4,-4.2,.4,-4.0,.42,'#cf131b');ln(.4,-4.0,1.05,-3.14,.36,'#a30e15');
+  cx.beginPath();cx.arc(1.08,-3.12,.24,0,7);cx.fillStyle='#0c0c0f';cx.fill();cx.lineWidth=.04;cx.strokeStyle='#e1101a';cx.stroke();
+  /* capacete */
+  cx.beginPath();cx.arc(-.05,-5,.55,0,7);cx.fillStyle=grad(-.5,-5.5,.5,-4.5,[[0,'#ffffff'],[.45,'#e0171f'],[1,'#5d070b']]);cx.fill();cx.lineWidth=.04;cx.strokeStyle='#ff6a5f';cx.stroke();
+  cx.save();cx.beginPath();cx.arc(-.05,-5,.55,0,7);cx.clip();ln(-.7,-5.15,.6,-5.55,.16,'rgba(255,255,255,.9)');cx.restore();
+  cx.save();cx.translate(.26,-4.95);cx.rotate(-.18);cx.beginPath();cx.ellipse(0,0,.34,.2,0,0,7);cx.fillStyle='#050508';cx.fill();
+  cx.beginPath();cx.ellipse(-.05,-.06,.18,.06,0,0,7);cx.fillStyle='rgba(255,255,255,.5)';cx.fill();cx.restore();
+  poly([.3,-4.7,.56,-4.62,.5,-4.45,.28,-4.5],'#16161b');
   cx.restore()}
  function trail(x,gy,u,dir,len){if(len<3)return;var x0=x-dir*3*u,x1=x0-dir*len;
   for(var k=0;k<4;k++){var y=gy-(.45+k*.6)*u,g=cx.createLinearGradient(x0,0,x1,0);
@@ -233,18 +286,19 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
  el.addEventListener('click',fim);
  function loop(now){
   var t=(now-t0)/1000;
-  cx.globalAlpha=1;cx.fillStyle='rgba(5,5,7,.3)';cx.fillRect(0,0,W,H);
+  cx.globalAlpha=1;cx.fillStyle='rgba(5,5,7,.42)';cx.fillRect(0,0,W,H);
   floor(t);
   if(t<T_FLASH-.1){cx.strokeStyle='rgba(255,255,255,.14)';cx.lineWidth=1.2;
    for(var k=0;k<3;k++){var y=hor-H*.25+Math.random()*H*.95,x=Math.random()*W,l=40+Math.random()*110;cx.beginPath();cx.moveTo(x,y);cx.lineTo(x+l,y);cx.stroke()}}
-  for(var i=0;i<B.length;i++){var b=B[i],p=(t-b.t0)/b.du,u=W*.125*b.d,gy=hor+(H-hor)*b.d,x,len,al=1;
+  for(var i=0;i<B.length;i++){var b=B[i],p=(t-b.t0)/b.du,u=Math.min(W*.15,H*.085)*b.d*1.35,gy=hor+(H-hor)*b.d,x,len,al=1;
    if(p<0)continue;
    var sv;
    if(b.hero){var q=Math.min(p,1);sv=-7*u+(W/2+7*u)*eo(q);x=sv;len=Math.min(12*u,(sv+7*u)*.9)*Math.pow(1-q,1.4);
     if(t>T_FLASH+.05)al=Math.max(0,1-(t-T_FLASH-.05)/.3);if(al<=0)continue}
    else{if(p>1)continue;sv=-7*u+(W+14*u)*p;x=b.dir>0?sv:W-sv;len=Math.min(12*u,(sv+7*u)*.9)}
-   trail(x,gy,u,b.dir,len);
-   bike(x,gy,u,b.dir,sv/u,al)}
+   var an=b.w*eo(Math.min(1,p/.3)); if(b.hero){an*=p<.62?1:Math.max(0,1-eo((p-.62)/.38))} an+=Math.sin(t*9+i)*.025*(an>.1?1:0);
+   trail(x,gy-u*.2,u,b.dir,len);
+   bike(x,gy,u,b.dir,sv/u,al,Math.max(0,an))}
   if(t>=T_FLASH){
    if(!flash){flash=true;el.classList.add('logo')}
    var f=t-T_FLASH;
@@ -436,6 +490,8 @@ function monta() { // esqueleto da página: criado 1 vez só (assim a moto "anda
     <div class="road"><div class="trilho"><div class="fill" id="fill"></div></div><div class="moto-ico" id="motoIco">${ic('moto')}</div>
       <div class="nos"><div class="no" data-i="0"><i>${ic('inbox')}</i>Recebida</div><div class="no" data-i="1"><i>${ic('wrench')}</i>Em andamento</div><div class="no" data-i="2"><i>${ic('flag')}</i>Pronta</div><div class="no" data-i="3"><i>${ic('check')}</i>Entregue</div></div></div>
     <p class="datas" id="datas"></p></section>
+  <section class="card entra"><h2>${ic('search')} Vistoria da moto <b class="chip" id="nVist"></b></h2><div id="vist"></div></section>
+  <section class="card entra"><h2>${ic('wrench')} Serviços da revisão <b class="chip" id="nServ"></b></h2><div id="servs"></div></section>
   <section class="card entra"><h2>${ic('nut')} Peças trocadas <b class="chip" id="nPecas"></b></h2><div id="pecas"></div></section>
   <section class="card entra"><h2>${ic('cam')} Fotos do serviço <b class="chip" id="nFotos"></b></h2><div id="fotos"></div></section>
   <div class="rod" id="rod"></div>`;
@@ -452,7 +508,7 @@ function pintaEstrada(d) {
   $('#fill').style.width = (p * 100) + '%';
   $('#motoIco').style.left = `calc(23px + (100% - 46px) * ${p})`;
   document.querySelectorAll('.no').forEach(n => { const k = +n.dataset.i; n.className = 'no ' + (k < idx || (idx === 3 && k === 3) ? 'feito' : k === idx ? 'atual' : ''); });
-  $('#datas').innerHTML = `Recebida em <b>${hora(d.criado_em)}</b>` + (d.iniciada_em ? `<br>Serviço iniciado em <b>${hora(d.iniciada_em)}</b>` : '') + (d.entregue_em ? `<br>Entregue em <b>${hora(d.entregue_em)}</b>` : '');
+  $('#datas').innerHTML = `Recebida em <b>${hora(d.criado_em)}</b>` + (d.iniciada_em && d.status !== 'aberta' ? `<br>Serviço iniciado em <b>${hora(d.iniciada_em)}</b>` : '') + (d.entregue_em ? `<br>Entregue em <b>${hora(d.entregue_em)}</b>` : '');
 }
 function pintaPecas(d, primeira) {
   $('#nPecas').textContent = d.pecas.length || '';
@@ -460,6 +516,24 @@ function pintaPecas(d, primeira) {
     ? d.pecas.map(p => { const nova = !primeira && !pecasVistas.has(chavePeca(p)); return `<div class="peca ${nova ? 'nova' : primeira ? 'pop' : ''}"><span class="ic">${ic('nut')}</span><span class="nm">${esc(p.descricao)}${nova ? '<span class="novo">NOVO</span>' : ''}${p.zona && ZNOME[p.zona] ? `<small class="zt">${esc(ZNOME[p.zona])}</small>` : ''}</span><b>${+p.qtd}x</b></div>`; }).join('')
     : `<p class="vazio"><span class="em">${ic('clock')}</span>Ainda não foi trocada nenhuma peça. Assim que trocarmos, aparece aqui na hora!</p>`;
   d.pecas.forEach(p => pecasVistas.add(chavePeca(p)));
+}
+const nomeServ = p => String(p.descricao).replace(/^\[S\]\s*/, '').split(' | ')[0];
+const txtAv = p => String(p.descricao).replace(/^\[AV\]\s*/, '');
+function pintaServ(d, primeira) {
+  $('#nServ').textContent = d.servicos.length || '';
+  $('#servs').innerHTML = d.servicos.length
+    ? d.servicos.map(p => { const nova = !primeira && !pecasVistas.has(chavePeca(p)); return `<div class="peca ${nova ? 'nova' : primeira ? 'pop' : ''}"><span class="ic">${ic('check')}</span><span class="nm">${esc(nomeServ(p))}${nova ? '<span class="novo">NOVO</span>' : ''}<small class="zt">${hora(p.criado_em)}</small></span></div>`; }).join('')
+    : `<p class="vazio"><span class="em">${ic('clock')}</span>Assim que o mecânico começar um serviço, ele aparece aqui na hora!</p>`;
+  d.servicos.forEach(p => pecasVistas.add(chavePeca(p)));
+}
+function pintaVist(d, primeira) {
+  const F = d.vfotos, A = d.avarias;
+  $('#nVist').textContent = F.length || A.length ? (F.length ? F.length + ' foto' + (F.length > 1 ? 's' : '') : 'feita') : '';
+  $('#vist').className = F.length ? 'fotos' : '';
+  $('#vist').innerHTML = (F.length ? F.map(f => `<figure class="foto ${!primeira && !fotosVistas.has(f.id) ? 'nova' : ''}" data-id="${f.id}" style="margin:0"><img alt="Vistoria">${f.legenda ? `<figcaption>${esc(String(f.legenda).replace(/^\[V\]\s*/, ''))}</figcaption>` : ''}</figure>`).join('') : '')
+    + (F.length || A.length ? `<div style="grid-column:1/-1">${A.length ? A.map(p => `<div class="peca"><span class="ic">${ic('search')}</span><span class="nm">${esc(txtAv(p))}</span></div>`).join('') : ''}</div>` : `<p class="vazio"><span class="em">${ic('cam')}</span>Registramos fotos e avarias da moto na chegada. Aparece aqui.</p>`);
+  F.forEach(f => { fotosVistas.add(f.id); carregaFoto(f.id); });
+  aplicaFotos();
 }
 function pintaMapa(d, nv) {
   if (!$('#mapa')) return;
@@ -490,16 +564,19 @@ function pintaRodape() {
 }
 function desenha(d) {
   const primeira = !criado; if (primeira) monta();
+  { const eS = p => /^\[S\]/.test(p.descricao || ''), eA = p => /^\[AV\]/.test(p.descricao || ''), eV = f => /^\[V\]/.test(f.legenda || '');
+    d = { ...d, servicos: d.pecas.filter(eS), avarias: d.pecas.filter(eA), vfotos: d.fotos.filter(eV), pecas: d.pecas.filter(p => !eS(p) && !eA(p)), fotos: d.fotos.filter(f => !eV(f)) }; }
   $('#num').textContent = 'Nº ' + String(d.numero).padStart(4, '0');
   if (!primeira) { // avisa o que chegou de novo enquanto o cliente está com a página aberta
-    const nP = d.pecas.filter(p => !pecasVistas.has(chavePeca(p))), nF = d.fotos.filter(f => !fotosVistas.has(f.id));
+    const nP = d.pecas.filter(p => !pecasVistas.has(chavePeca(p))), nF = d.fotos.filter(f => !fotosVistas.has(f.id)), nS = d.servicos.filter(p => !pecasVistas.has(chavePeca(p)));
     if (d.status !== statusAnt) { aviso((INFO[d.status] || INFO.aberta).tit); if (d.status === 'pronta') confete(); }
+    else if (nS.length) aviso('Serviço em andamento: ' + nomeServ(nS[nS.length - 1]));
     else if (nP.length) aviso('Peça trocada: ' + nP[nP.length - 1].descricao + (nP[nP.length - 1].zona && ZNOME[nP[nP.length - 1].zona] ? ' · ' + ZNOME[nP[nP.length - 1].zona] : ''));
     else if (nF.length) aviso('Nova foto do serviço!');
   } else if (d.status === 'pronta') setTimeout(confete, 900);
   const nv = primeira ? [] : [...new Set(d.pecas.filter(p => p.zona && !pecasVistas.has(chavePeca(p))).map(p => p.zona))];
   if (nv.length) zSel = nv[nv.length - 1]; // a moto já abre mostrando o lugar da peça nova
-  pintaHero(d); pintaEstrada(d); pintaPecas(d, primeira); pintaMapa(d, nv); pintaFotos(d, primeira);
+  pintaHero(d); pintaEstrada(d); pintaVist(d, primeira); pintaServ(d, primeira); pintaPecas(d, primeira); pintaMapa(d, nv); pintaFotos(d, primeira);
   statusAnt = d.status; dados = d; pintaRodape();
 }
 async function atualiza() {
