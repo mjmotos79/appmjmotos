@@ -165,22 +165,39 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 @keyframes mjSway{0%,100%{transform:rotateY(0) rotateX(0)}25%{transform:rotateY(9deg) rotateX(2deg)}75%{transform:rotateY(-9deg) rotateX(-2deg)}}
 @keyframes mjSh{0%{background-position:130% 0}55%,100%{background-position:-40% 0}}
 @keyframes mjPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+/* modo CURTO: só a logo entrando + o brilho branco passando (usado depois da 1ª abertura e ao trocar de tela) */
+#mjs.curta{pointer-events:none}
+#mjs.curta canvas,#mjs.curta .bar{display:none}
+#mjs.curta .pal::before{animation:none}
+#mjs.curta .rot{animation:mjIn .5s cubic-bezier(.2,.9,.25,1.06) forwards}
+#mjs.curta .sh{animation:mjSh 1s ease-in-out .3s 1 both}
+#mjs.troca{animation:mjFade .15s ease-out}
+@keyframes mjFade{from{opacity:0}}
 </style>
 </head>
 <body>
 <div id="mjs" aria-hidden="true"><canvas></canvas><div class="pal"></div><div class="bar"><i></i></div></div>
 <script>
-/* TELA DE ABERTURA: motos passando com rastro, a última para no meio e a logo entra em 3D. Toque para pular. Aparece 1 vez por abertura. */
+/* TELA DE ABERTURA: motos passando com rastro, a última para no meio e a logo entra em 3D. Toque para pular. Completa só na 1ª vez da sessão; depois só logo + brilho. */
 (function(){
  var el=document.getElementById('mjs');if(!el)return;
- var rm=false,visto=false;
- try{var ult=+sessionStorage.getItem('mj_splash_t')||0;visto=Date.now()-ult<6000}catch(e){}
- /* Não usa mais "prefers-reduced-motion": no Android, quem desliga as animações do aparelho/economia de bateria fazia a abertura sumir. Só some se acabou de aparecer (recarregar a página) ou tocar para pular. */
- if(window.__mjBloq||visto){el.remove();return}
- try{sessionStorage.setItem('mj_splash_t',String(Date.now()))}catch(e){}
+ /* Camadas da logo 3D (usadas na abertura completa e no modo curto) */
+ window.mjPalHtml=function(){var h='<div class="rot">';for(var i=9;i>=1;i--)h+='<img class="e" src="logo-3d.png" alt="" style="transform:translateZ(-'+(i*4)+'px)">';return h+'<img src="logo-3d.png" alt="MJ Motos"><div class="sh"></div></div>'};
+ /* Mostra só a logo + brilho branco (rápido). Chamada ao trocar de tela. */
+ window.mjCurta=function(){
+  if(window.__mjBloq||document.getElementById('mjs'))return;
+  var d=document.createElement('div');d.id='mjs';d.className='curta logo troca';d.setAttribute('aria-hidden','true');
+  d.innerHTML='<div class="pal">'+window.mjPalHtml()+'</div>';document.body.appendChild(d);
+  setTimeout(function(){d.classList.add('sai')},1050);setTimeout(function(){d.remove()},1700)};
+ if(window.__mjBloq){el.remove();return}
+ /* Abertura COMPLETA (motos + logo) só na 1ª vez da sessão do app. Depois disso (recarregou, voltou do WhatsApp etc.) mostra só a logo + brilho. */
+ var jaViu=false;
+ try{jaViu=sessionStorage.getItem('mj_intro')==='1';sessionStorage.setItem('mj_intro','1')}catch(e){}
+ if(jaViu){
+  el.className='curta logo';el.querySelector('.pal').innerHTML=window.mjPalHtml();
+  setTimeout(function(){el.classList.add('sai')},1050);setTimeout(function(){el.remove()},1700);return}
  var pal=el.querySelector('.pal'),bar=el.querySelector('.bar i'),cv=el.querySelector('canvas'),cx=cv.getContext('2d');
- var h='<div class="rot">';for(var i=9;i>=1;i--)h+='<img class="e" src="logo-3d.png" alt="" style="transform:translateZ(-'+(i*4)+'px)">';
- pal.innerHTML=h+'<img src="logo-3d.png" alt="MJ Motos"><div class="sh"></div></div>';
+ pal.innerHTML=window.mjPalHtml();
  var W,H,hor,dpr;
  function size(){dpr=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);hor=H*.46}
  size();addEventListener('resize',size);
@@ -662,7 +679,7 @@ function pintaNav() {
   $('#nav').innerHTML = `<button class="${aba === 'moto' ? 'on' : ''}" onclick="abre('moto')">${ic('moto')}Minha moto</button>
    <button class="${aba === 'promo' ? 'on' : ''}" onclick="abre('promo')">${ic('tag')}Promoções<i>${PR && PR.length ? PR.length : ''}</i></button>`;
 }
-function abre(a) { aba = a; $('#app').hidden = a !== 'moto'; $('#promo').hidden = a !== 'promo'; pintaNav(); window.scrollTo(0, 0); if (a === 'promo') promos(); }
+function abre(a) { if (a !== aba && window.mjCurta) mjCurta(); aba = a; $('#app').hidden = a !== 'moto'; $('#promo').hidden = a !== 'promo'; pintaNav(); window.scrollTo(0, 0); if (a === 'promo') promos(); }
 function pintaPromos() {
   const L = PR || [];
   $('#promo').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Promoções<small>Ofertas da Matheus Motos</small></div></header>` +
