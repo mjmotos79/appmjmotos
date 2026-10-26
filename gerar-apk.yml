@@ -1,0 +1,33 @@
+# Gera o APK do app MJ Motos na nuvem do GitHub (grátis). Rode em: aba Actions > Gerar APK > Run workflow.
+name: Gerar APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Montar o app
+        working-directory: app-android
+        run: |
+          mkdir -p www
+          rsync -a --exclude app-android --exclude node_modules --exclude '*.sql' --exclude '*.zip' --exclude .github --exclude .git ../ www/
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+          npx cap sync android
+      - name: Gerar o APK
+        working-directory: app-android/android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MJ-Motos-APK
+          path: app-android/android/app/build/outputs/apk/debug/app-debug.apk

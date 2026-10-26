@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0c">
+<link rel="manifest" id="mf" href="manifest-cliente.json">
+<link rel="apple-touch-icon" href="icone-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Minha moto">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="robots" content="noindex">
+<title>Acompanhe sua revisão — Matheus Motos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:ital,wght@1,700;1,800&display=swap" rel="stylesheet">
+<style>
+:root{--texto:#f5f5f7;--suave:#a0a0aa;--linha:#2a2a30;--verm:#e1101a;--ok:#2fbf71;--alerta:#f5a524;--azul:#4da3ff;
+--tit:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--corpo:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#0a0a0c}
+body{margin:0;color:var(--texto);font-family:var(--corpo);font-size:16px;line-height:1.4;min-height:100vh;overflow-x:hidden;position:relative}
+html,body{background:#0a0a0c}
+main{max-width:520px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 14px calc(40px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;gap:12px;padding:4px 2px 14px}
+header img{height:50px;width:50px;object-fit:contain;border-radius:50%}
+header .nome{font-family:var(--tit);font-style:italic;font-weight:800;font-size:22px;line-height:1;text-transform:uppercase;letter-spacing:.5px}
+header .nome small{display:block;font-family:var(--corpo);font-style:normal;font-weight:500;font-size:12px;color:var(--suave);letter-spacing:0;text-transform:none;margin-top:3px}
+.chipn{margin-left:auto;background:rgba(255,255,255,.07);border:1px solid var(--linha);border-radius:99px;padding:5px 11px;font-size:12px;color:var(--suave);white-space:nowrap}
+.card{background:rgba(22,22,26,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid var(--linha);border-radius:18px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.card h2{margin:0 0 12px;font-family:var(--tit);font-style:italic;font-weight:800;font-size:20px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.chip{font-family:var(--corpo);font-style:normal;font-size:12px;font-weight:600;background:var(--verm);color:#fff;border-radius:99px;padding:2px 9px;letter-spacing:0}
+.chip:empty{display:none}
+.entra{animation:sobe .7s cubic-bezier(.2,.8,.2,1) both}
+.entra:nth-of-type(2){animation-delay:.08s}.entra:nth-of-type(3){animation-delay:.16s}.entra:nth-of-type(4){animation-delay:.24s}.entra:nth-of-type(5){animation-delay:.32s}
+@keyframes sobe{from{opacity:0;transform:translateY(26px) scale(.97)}to{opacity:1;transform:none}}
+/* topo: saudação + placa + faixa de situação */
+.hero{border-color:color-mix(in srgb,var(--cor,#4da3ff) 55%,#2a2a30);transition:border-color .6s}
+.ola{font-family:var(--tit);font-style:italic;font-weight:800;font-size:34px;line-height:1.05;margin:0}
+.moto{color:var(--suave);margin:2px 0 0;font-size:17px}
+.placa{display:inline-block;background:#f4f4f4;color:#111;font-family:var(--tit);font-weight:800;font-size:28px;letter-spacing:3px;line-height:1.3;padding:0 14px;border-radius:6px;border-top:7px solid #1b4fd8;margin-top:10px;position:relative;overflow:hidden}
+.placa::after{content:"";position:absolute;top:0;bottom:0;width:40%;left:-60%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.9),transparent);animation:passa 3.4s ease-in-out infinite}
+@keyframes passa{0%,55%{left:-60%}100%{left:130%}}
+.banner{display:flex;align-items:center;gap:14px;margin-top:16px;padding:14px;border-radius:14px;background:color-mix(in srgb,var(--cor,#4da3ff) 16%,transparent);border:1px solid color-mix(in srgb,var(--cor,#4da3ff) 45%,transparent);transition:all .6s}
+.banner .em{line-height:1;flex:none}
+.banner b{display:block;font-size:19px;font-weight:600}
+.banner span.t{color:#d4d4da;font-size:15px}
+.em.quica{animation:quica 1.3s ease-in-out infinite}.em.gira{animation:gira 3s linear infinite}.em.pulsa{animation:pulsa 1s ease-in-out infinite}
+@keyframes quica{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px) rotate(-6deg)}}
+@keyframes gira{to{transform:rotate(360deg)}}
+@keyframes pulsa{0%,100%{transform:scale(1)}50%{transform:scale(1.25) rotate(8deg)}}
+/* estrada com a moto andando conforme a etapa */
+.road{position:relative;padding-top:42px}
+.trilho{position:absolute;left:23px;right:23px;top:62px;height:6px;border-radius:9px;background:repeating-linear-gradient(90deg,#34343a 0 10px,transparent 10px 18px)}
+.fill{position:absolute;left:0;top:0;bottom:0;border-radius:9px;background:linear-gradient(90deg,var(--ok),var(--alerta));width:0;transition:width 1.1s cubic-bezier(.3,.9,.3,1)}
+.moto-ico{position:absolute;top:4px;left:23px;font-size:30px;display:flex;transform:translateX(-50%) scaleX(-1);transition:left 1.1s cubic-bezier(.3,.9,.3,1);animation:vibra .5s ease-in-out infinite alternate}
+@keyframes vibra{from{margin-top:0}to{margin-top:-2px}}
+.nos{display:flex;justify-content:space-between;position:relative}
+.no{width:25%;text-align:center;font-size:12px;color:var(--suave);transition:color .5s}
+.no i{display:flex;align-items:center;justify-content:center;width:46px;height:46px;margin:0 auto 6px;border-radius:50%;background:#1b1b20;border:2px solid var(--linha);color:var(--suave);font-style:normal;font-size:22px;transition:all .5s}
+.no.feito{color:var(--texto)}.no.feito i{background:var(--ok);border-color:var(--ok);color:#04130a}
+.no.atual{color:#fff;font-weight:600}.no.atual i{background:var(--alerta);border-color:var(--alerta);color:#1a1000;animation:anel 1.6s infinite}
+@keyframes anel{0%{box-shadow:0 0 0 0 rgba(245,165,36,.7)}100%{box-shadow:0 0 0 14px rgba(245,165,36,0)}}
+.datas{margin:14px 0 0;font-size:13px;color:var(--suave);line-height:1.7}
+/* ícones planos (SVG, sem emoji 3D) */
+.ico{width:1em;height:1em;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.14em;flex:none}
+.card h2 .ico{color:var(--verm);font-size:22px}
+.banner .em{color:var(--cor);font-size:38px;display:flex}
+.peca .ic{color:var(--suave);display:flex;font-size:22px}
+.vazio .em{color:var(--suave);display:flex}
+.moto-ico{color:#fff}
+/* peças */
+.peca{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--linha);margin-bottom:8px}
+.peca:last-child{margin-bottom:0}
+.peca .ic{font-size:22px;flex:none}
+.peca .nm{flex:1;font-weight:500}
+.peca b{color:var(--ok);font-size:15px;white-space:nowrap;background:rgba(47,191,113,.12);padding:3px 10px;border-radius:99px}
+.peca.pop{animation:pop .6s cubic-bezier(.2,1.4,.4,1) both}
+.peca.nova{animation:pop .6s cubic-bezier(.2,1.4,.4,1) both,destaque 2.2s ease-out 3}
+.peca .novo{background:var(--verm);color:#fff;font-size:10px;font-weight:600;letter-spacing:.5px;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle;animation:pulsa 1s infinite}
+@keyframes pop{from{opacity:0;transform:scale(.7) translateX(-18px)}to{opacity:1;transform:none}}
+@keyframes destaque{0%{box-shadow:0 0 0 0 rgba(225,16,26,.8);border-color:var(--verm)}100%{box-shadow:0 0 0 16px rgba(225,16,26,0)}}
+.vazio{color:var(--suave);margin:0;display:flex;gap:10px;align-items:center}
+.vazio .em{font-size:26px}
+/* fotos */
+.fotos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.foto{position:relative;border-radius:14px;overflow:hidden;background:linear-gradient(110deg,#1b1b20 30%,#2a2a31 50%,#1b1b20 70%);background-size:200% 100%;animation:brilhoFoto 1.4s linear infinite;aspect-ratio:4/3;cursor:zoom-in;border:1px solid var(--linha)}
+.foto.ok{animation:none;background:#000}
+.foto img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transform:scale(1.08);transition:opacity .6s,transform .8s}
+.foto.ok img{opacity:1;transform:none}
+.foto:active img{transform:scale(1.04)}
+.foto figcaption{position:absolute;left:0;right:0;bottom:0;padding:22px 10px 8px;font-size:12px;background:linear-gradient(transparent,rgba(0,0,0,.85))}
+.foto.nova{animation:pop .6s both,destaque 2.2s ease-out 3}
+@keyframes brilhoFoto{to{background-position:-200% 0}}
+.rod{text-align:center;color:var(--suave);font-size:13px;margin-top:4px}
+.rod span{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--ok);margin-right:7px;animation:ponto 1.6s infinite}
+@keyframes ponto{0%{box-shadow:0 0 0 0 rgba(47,191,113,.8)}100%{box-shadow:0 0 0 10px rgba(47,191,113,0)}}
+/* aviso que desce quando chega novidade */
+#aviso{position:fixed;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));max-width:496px;margin:0 auto;z-index:20;background:linear-gradient(90deg,#e1101a,#ff7a18);color:#fff;border-radius:14px;padding:14px 16px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.6);transform:translateY(-140%);transition:transform .5s cubic-bezier(.2,1.2,.4,1)}
+#aviso.on{transform:none}
+#zoom{position:fixed;inset:0;background:rgba(0,0,0,.95);display:none;align-items:center;justify-content:center;padding:10px;z-index:30;animation:sobe .3s both}
+#zoom img{max-width:100%;max-height:100%;border-radius:10px}
+.confete{position:fixed;top:-20px;width:9px;height:14px;z-index:25;pointer-events:none;animation:cai linear forwards}
+@keyframes cai{to{transform:translateY(110vh) rotate(720deg)}}
+.erro{text-align:center;padding:40px 14px}.erro .em{font-size:54px;display:block;margin-bottom:8px;color:var(--suave)}
+
+/* MAPA DA MOTO */
+.mapa{background:#0a0a0c;border:1px solid var(--linha);border-radius:14px;padding:6px}
+.mapa svg{width:100%;height:auto;display:block}
+.mapa .fx{fill:none;stroke:#3a3a42;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.mapa .zs{fill:transparent;stroke:#7a7a85;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:all .25s}
+.mapa .hit{fill:transparent;stroke:transparent;stroke-width:20}
+.mapa .z{cursor:pointer}
+.mapa .z.tem .zs{stroke:var(--ok);fill:rgba(47,191,113,.2);filter:drop-shadow(0 0 4px rgba(47,191,113,.7))}
+.mapa .z.sel .zs{stroke:var(--verm);fill:rgba(225,16,26,.28);filter:drop-shadow(0 0 6px rgba(225,16,26,.8))}
+.mapa .z.nova .zs{animation:zp .9s ease-in-out infinite alternate}
+@keyframes zp{to{stroke-width:7}}
+.mapa .bd circle{fill:var(--ok)}.mapa .bd text{fill:#04130a;font:700 12px Barlow,sans-serif;text-anchor:middle;pointer-events:none}
+.mapa .z.sel .bd circle{fill:var(--verm)}.mapa .z.sel .bd text{fill:#fff}
+.zdet{margin-top:10px}.zdet>b{display:block;margin-bottom:6px}
+.zi{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px}.zi span{flex:1}
+.zt{display:block;color:var(--suave);font-size:12px;font-weight:400}
+.sg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sg button{background:#0a0a0c;border:1px solid var(--linha);color:var(--texto);border-radius:99px;padding:6px 12px;font:500 13px var(--corpo)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="aviso" role="status"></div>
+<main id="app"><p class="vazio" style="justify-content:center;padding:60px 0">Carregando…</p></main>
+<div id="zoom"><img alt="Foto do serviço"></div>
+<script>
+/* O QUE É ESTE ARQUIVO: a página que o cliente abre pelo link do WhatsApp.
+   Ela só LÊ os dados da moto dele (pelo token do link) e se atualiza sozinha a cada poucos segundos. */
+const URL_ = "https://gbfsfxttlrwzqqjrbrvh.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZnNmeHR0bHJ3enFxanJicnZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMjQyNDgsImV4cCI6MjEwNjkwMDI0OH0.2RyTC3gl9EY3L0HZHLttG9wdNIzpXtGIGGX2_okjyBQ";
+const token = (() => { let t = new URLSearchParams(location.search).get('t') || ''; try { if (t) localStorage.setItem('mm_cli_t', t); else t = localStorage.getItem('mm_cli_t') || ''; } catch {} return t; })(); // guarda o link: o app instalado abre direto na moto do cliente
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hora = d => new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(',', ' às');
+async function rpc(nome, args) {
+  const r = await fetch(URL_ + '/rest/v1/rpc/' + nome, { method: 'POST', headers: { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(args) });
+  const j = await r.json().catch(() => null);
+  if (!r.ok) throw new Error((j && j.message) || 'erro');
+  return j;
+}
+const IC = { // ícones simples de linha (nada de emoji colorido)
+  inbox: '<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+  check: '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>',
+  spin: '<path d="M21 12a9 9 0 1 1-6.22-8.56"/>',
+  nut: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="12" cy="12" r="3"/>',
+  cam: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  moto: '<circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 9 10h5l3 3.5 1.5 3.5M9 10 7.5 7H5M14 10l1.5-4H18"/>'
+};
+const ic = n => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
+const IDX = { aberta: 0, andamento: 1, pronta: 2, entregue: 3 };
+const INFO = {
+  aberta:    { em: 'inbox', anim: 'quica', cor: '#4da3ff', tit: 'Moto recebida',        txt: 'Já estamos com a sua moto. Em breve o serviço começa.' },
+  andamento: { em: 'spin', anim: 'gira',  cor: '#f5a524', tit: 'Serviço em andamento', txt: 'Estamos trabalhando na sua moto agora.' },
+  pronta:    { em: 'flag', anim: 'pulsa', cor: '#2fbf71', tit: 'Pronta para retirar!', txt: 'Pode vir buscar a sua moto. Boa estrada!' },
+  entregue:  { em: 'check', anim: 'quica', cor: '#2fbf71', tit: 'Moto entregue',        txt: 'Obrigado pela preferência! Volte sempre.' }
+};
+
+/* ===== MAPA DA MOTO: desenho de lado; cada ponto é uma "zona" que o mecânico toca e o cliente vê acender ===== */
+const ZN=[
+{id:'pneu_t',n:'Pneu traseiro',b:[50,140],s:['<circle cx="80" cy="170" r="44"/>'],g:['Pneu','Câmara de ar','Válvula','Rolamento da roda','Raio']},
+{id:'pneu_d',n:'Pneu dianteiro',b:[372,140],s:['<circle cx="340" cy="170" r="44"/>'],g:['Pneu','Câmara de ar','Válvula','Rolamento da roda','Raio']},
+{id:'paralama',n:'Paralama / lataria',b:[340,108],s:['<path d="M298 134 Q340 90 382 134"/>'],g:['Paralama','Carenagem','Lateral','Adesivo']},
+{id:'amort',n:'Suspensão traseira',b:[133,128],s:['<path d="M142 102 L124 156"/>'],g:['Amortecedor','Mola','Bucha','Rolamento do balança']},
+{id:'escape',n:'Escapamento',b:[160,201],s:['<path d="M240 172 Q240 202 204 201 L196 201"/>','<rect x="124" y="192" width="72" height="18" rx="8"/>'],g:['Escapamento','Silencioso','Abraçadeira','Junta do escape']},
+{id:'trans',n:'Transmissão (corrente)',b:[128,172],s:['<path d="M80 154 L176 160"/>','<path d="M80 186 L176 184"/>','<circle cx="176" cy="172" r="12"/>'],g:['Kit relação','Corrente','Coroa','Pinhão','Tensor']},
+{id:'motor',n:'Motor',b:[226,148],s:['<rect x="190" y="116" width="72" height="56" rx="10"/>','<path d="M200 116 L210 102 L250 102 L252 116"/>'],g:['Óleo do motor','Vela','Filtro de óleo','Junta','Pistão / anéis','Cabeçote','Válvulas']},
+{id:'filtro',n:'Filtro de ar / injeção',b:[281,127],s:['<rect x="268" y="112" width="26" height="30" rx="6"/>'],g:['Filtro de ar','Carburador','Corpo de injeção','Bico injetor','Mangueira']},
+{id:'bateria',n:'Bateria / elétrica',b:[163,132],s:['<rect x="148" y="120" width="30" height="24" rx="4"/>'],g:['Bateria','Regulador','CDI / ECU','Fusível','Chicote','Motor de partida']},
+{id:'tanque',n:'Tanque / combustível',b:[205,84],s:['<path d="M150 96 Q158 64 200 64 L246 68 Q262 82 250 100 L160 104 Z"/>'],g:['Tanque','Torneira','Bomba de combustível','Tampa do tanque','Filtro de gasolina']},
+{id:'banco',n:'Banco',b:[108,97],s:['<path d="M66 96 Q72 84 108 86 L150 92 L150 104 L76 108 Q62 106 66 96 Z"/>'],g:['Banco / capa','Fechadura do banco','Espuma']},
+{id:'lanterna',n:'Lanterna / rabeta',b:[52,95],s:['<path d="M42 88 L62 86 L64 104 L44 102 Z"/>'],g:['Lanterna','Lâmpada','Pisca traseiro','Suporte da placa','Rabeta']},
+{id:'garfo',n:'Suspensão dianteira',b:[322,124],s:['<path d="M340 170 L304 78"/>'],g:['Retentor do garfo','Óleo do garfo','Bengala','Bucha','Rolamento de direção']},
+{id:'guidao',n:'Guidão / painel',b:[305,44],s:['<path d="M284 66 L326 54"/>'],g:['Manete','Punho','Retrovisor','Painel','Cabo do acelerador','Pisca']},
+{id:'farol',n:'Farol',b:[343,76],s:['<ellipse cx="326" cy="90" rx="12" ry="14"/>'],g:['Lâmpada do farol','Farol','Pisca','Lente']},
+{id:'freio_t',n:'Freio traseiro',b:[80,170],s:['<circle cx="80" cy="170" r="16"/>'],g:['Pastilha','Sapata','Disco de freio','Fluido de freio','Cabo do freio']},
+{id:'freio_d',n:'Freio dianteiro',b:[340,170],s:['<circle cx="340" cy="170" r="16"/>'],g:['Pastilha','Disco de freio','Fluido de freio','Pinça','Cabo do freio']}
+];
+const ZNOME=Object.fromEntries(ZN.map(z=>[z.id,z.n]));
+const ZFX='<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M304 78 L258 100 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>';
+/* ===== TIPOS DE MOTO: o desenho muda conforme o modelo cadastrado (mesmas zonas, formas diferentes) ===== */
+/* ===== CATÁLOGO: marca → modelos (cada modelo tem um tipo de desenho) ===== */
+const MODELOS={"Honda":{"street":["CG 125","CG 150 Titan","CG 150 Fan","CG 160 Start","CG 160 Fan","CG 160 Titan","NXR 125 Bros"],"trail":["XRE 190","XRE 300","XRE 300 Sahara","NXR 150 Bros","NXR 160 Bros","XR 200","XR 250 Tornado","CRF 230F","CRF 250F","CRF 250L","Falcon NX-4","XL 700V Transalp"],"big":["XL 750 Transalp","CRF 1100L Africa Twin","NC 750X"],"scooter":["Biz 100","Biz 110i","Biz 125","C 100 Dream","Dream 100"],"sport":["CBR 250R","CBR 300R","CBR 500R","CBR 600RR","CBR 650R","CBR 1000RR","CBR 1000RR-R Fireblade"],"custom":["Shadow 750","Rebel 300","Rebel 500","Rebel 1100"],"pop":["Pop 110i","Pop 100"],"maxi":["PCX 150","PCX 160","Elite 125","Lead 110","SH 150i","SH 300i","ADV 150","ADV 350","Fusion","Burgman"],"naked":["CB 250 Twister","CB 300R","CB 300F Twister","CB 500F","CB 650F","CB 1000R","Hornet"]},"Yamaha":{"street":["YBR 125 Factor","YBR 150 Factor","Factor 125","Factor 150","Fazer 150","Crypton 115","YS 150 Fazer","YS 250 Fazer"],"naked":["MT-03","MT-07","MT-09","Fazer 250","FZ25","FZ15","FZ6","Z-Naked"],"trail":["XTZ 125","XTZ 150 Crosser","XTZ 250 Lander","XTZ 250 Ténéré","Ténéré 250","XT 660","WR 250","YZ 250F"],"big":["Ténéré 700","Tracer 700","Tracer 900","Super Ténéré 1200"],"sport":["R3","YZF-R3","YZF-R1","R1","R6","R7","YZF-R6","YZF-R7","YZF-R15"],"custom":["Dragstar 650","Midnight Star","Drag Star 250","Virago 250"],"maxi":["Fluo 125","Fluo ABS","Neo 125","Cygnus","Libero 125","NMax 160","NMax 125","XMax 250","XMax 300","Aerox 155"]},"Suzuki":{"street":["GSX 150 Bandit","Yes 125","Burgman 125","En 125 Yes","GN 125"],"naked":["Gixxer 250","GSX-S750","GSX-S1000","Bandit 650","Bandit 1250","SV 650"],"trail":["DR 650","DR-Z 400","V-Strom 650","V-Strom 250","V-Strom 1050","DL 250"],"big":["V-Strom 1050 XT"],"sport":["GSX-R 750","GSX-R 1000","GSX-R 600","Hayabusa","GSX 250R"],"custom":["Boulevard M800","Boulevard M109R","Intruder 125","Intruder 250","Marauder 250"],"maxi":["Burgman 400","Burgman 125i","Address 110"]},"Kawasaki":{"street":["Eliminator","Vulcan"],"naked":["Z300","Z400","Z650","Z750","Z800","Z900","Z1000","ER-6N"],"trail":["KLX 150","KLX 300","KLR 650","Versys-X 300"],"big":["Versys 650","Versys 1000","Versys-X 250"],"sport":["Ninja 250","Ninja 300","Ninja 400","Ninja 650","Ninja ZX-6R","Ninja ZX-10R","Ninja H2"],"custom":["Vulcan S","Vulcan 900","Vulcan 1700"]},"Shineray":{"street":["XY 50","Jet 50","Worker 125","Phoenix 50","SHI 175","XY 125"],"trail":["XY 150 Explorer","Discover 150","XTZ Explorer"],"maxi":["Jet 125","Fox 50"],"pop":["Mini Cargo"]},"Haojue":{"street":["DK 150","Master Ride 150","DR 160","DK 160","NK 150"],"trail":["DR 160 Trail","DR 300"],"maxi":["Lindy 125","Chopper Road 150","Lindy 50","VR 150","URBAN 125"]},"Dafra":{"street":["Speed 150","Next 250","Apache 150","Riva 150"],"trail":["Zig 125"],"maxi":["Citycom 300i","Citycom 200","Maxsym 400i","Cruisym 150","Kymco Agility"]},"Traxx":{"street":["JH 125","FLY 125","STAR 50","Sky 125"],"maxi":["Boss 150"]},"Royal Enfield":{"custom":["Meteor 350","Classic 350","Hunter 350","Bullet 350","Super Meteor 650"],"street":["Interceptor 650","Continental GT 650"],"big":["Himalayan 411","Himalayan 450","Scram 411"]},"Triumph":{"street":["Bonneville T100","Bonneville T120","Speed Twin","Scrambler 900","Thruxton"],"naked":["Street Triple","Speed Triple","Trident 660","Speed 400"],"big":["Tiger 660","Tiger 800","Tiger 900","Tiger 1200","Scrambler 400X"],"custom":["Rocket 3","Speedmaster"]},"BMW":{"naked":["G 310 R","F 800 R","S 1000 R"],"big":["G 310 GS","F 750 GS","F 850 GS","R 1250 GS","R 1300 GS","F 900 XR","R 1250 RT"],"sport":["S 1000 RR","S 1000 XR"],"custom":["R 18","R nineT"],"maxi":["C 400 X","C 400 GT","CE 04"]},"KTM":{"naked":["Duke 200","Duke 390","Duke 790","Duke 890","Duke 1290"],"trail":["Adventure 390","EXC 250","EXC 300","SX-F 250"],"big":["Adventure 790","Adventure 890","Adventure 1290"],"sport":["RC 200","RC 390"]},"Harley-Davidson":{"custom":["Iron 883","Sportster 1200","Fat Boy","Fat Bob","Heritage Classic","Street Glide","Road King","Softail Slim","Low Rider","Street 750","Nightster","Pan America"]},"Ducati":{"sport":["Panigale V2","Panigale V4","959 Panigale","Supersport"],"naked":["Monster","Streetfighter V4","Scrambler"],"big":["Multistrada V4","Multistrada 950","DesertX","Hypermotard"]},"Vespa":{"maxi":["Primavera 150","Sprint 150","GTS 300","LX 125","Elettrica"]},"Kymco":{"maxi":["Agility 125","Like 150","Xciting 400","Downtown 350","People S 150"]},"Avelloz":{"street":["AZ1 160","AZ1 150"],"naked":["AZ1 Naked"],"maxi":["AZ1 Scooter"]},"Voltz":{"maxi":["EVS","EV1","EVS Plus"]},"Mottu":{"pop":["Mottu Sport 110i"]}};
+const semAc=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const _cmp=s=>semAc(s).replace(/[^a-z0-9]/g,'');
+const _CAT=[];for(const mk in MODELOS)for(const tp in MODELOS[mk])MODELOS[mk][tp].forEach(m=>_CAT.push([_cmp(m),tp,semAc(m)]));
+_CAT.sort((a,b)=>b[0].length-a[0].length);
+const modelosDe=mk=>{const k=Object.keys(MODELOS).find(x=>semAc(x)===semAc(mk));const L=k?Object.values(MODELOS[k]).flat():Object.values(MODELOS).flatMap(o=>Object.values(o).flat());return [...new Set(L)].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}))};
+const tipoCat=nome=>{const c=_cmp(nome),tk=semAc(nome).split(/[^a-z0-9]+/);for(const [k,tp] of _CAT){if(k.length<3?tk.includes(k):c.includes(k))return tp}return null};
+
+function tipoMoto(m){const c=tipoCat(m);if(c)return c;const t=semAc(m);
+ if(/\b(biz|pop ?\d*|pcx|lead|elite|nmax|n-max|xmax|fluo|neo|burgman|jog|citycom|cub|c ?100|dream|sh ?\d+|vision)\b/.test(t))return'scooter';
+ if(/\b(xre|bros|lander|tenere|crosser|nxr|falcon|transalp|xtz|sahara|africa|himalayan|xr ?\d+|crf|drz|dr ?\d+|tornado|versys-?x)\b/.test(t))return'trail';
+ if(/\b(cbr|r1|r3|r6|r7|yzf|ninja|gsx-?[rs]|s1000|panigale|rs ?\d{3}|f ?800 ?gs?)\b/.test(t))return'sport';
+ return'street'}
+const FXT={
+ scooter:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="84" cy="176" r="24"/><circle cx="336" cy="176" r="24"/><path d="M318 72 Q300 110 284 168 L180 170"/><path d="M84 176 L150 174"/></g>',
+ trail:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M300 62 L254 92 L190 112 L178 160"/><path d="M80 170 L176 172"/></g>',
+ sport:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M312 100 L262 104 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>'};
+const ZT={
+ scooter:{
+  pneu_t:{s:['<circle cx="84" cy="176" r="38"/>'],b:[54,146]},pneu_d:{s:['<circle cx="336" cy="176" r="38"/>'],b:[366,146]},
+  freio_t:{s:['<circle cx="84" cy="176" r="14"/>'],b:[84,176]},freio_d:{s:['<circle cx="336" cy="176" r="14"/>'],b:[336,176]},
+  trans:{s:['<path d="M84 164 L150 166"/>','<path d="M84 188 L150 184"/>','<circle cx="150" cy="176" r="10"/>'],b:[118,176]},
+  paralama:{s:['<path d="M298 152 Q336 120 376 152"/>'],b:[336,122]},garfo:{s:['<path d="M336 176 L318 72"/>'],b:[318,112]},
+  guidao:{s:['<path d="M300 62 L336 54"/>'],b:[318,46]},farol:{s:['<ellipse cx="340" cy="76" rx="10" ry="12"/>'],b:[356,62]},
+  banco:{s:['<path d="M60 108 Q66 96 100 96 L196 98 L200 112 L70 120 Q56 118 60 108 Z"/>'],b:[128,92]},
+  lanterna:{s:['<path d="M38 100 L60 98 L62 116 L40 114 Z"/>'],b:[50,92]},
+  tanque:{s:['<rect x="208" y="124" width="62" height="32" rx="8"/>'],b:[240,120]},
+  motor:{s:['<rect x="130" y="140" width="64" height="40" rx="10"/>'],b:[162,136]},
+  filtro:{s:['<rect x="198" y="106" width="24" height="topo" rx="6"/>'.replace('topo','16')],b:[210,100]},
+  bateria:{s:['<rect x="150" y="112" width="28" height="22" rx="4"/>'],b:[164,106]},
+  amort:{s:['<path d="M118 120 L98 164"/>'],b:[112,112]},
+  escape:{s:['<rect x="110" y="188" width="76" height="16" rx="7"/>','<path d="M190 192 Q216 192 216 172"/>'],b:[148,208]}},
+ trail:{
+  paralama:{s:['<path d="M300 116 Q336 78 388 98"/>'],b:[344,84]},garfo:{s:['<path d="M340 170 L300 62"/>'],b:[322,122]},
+  guidao:{s:['<path d="M284 52 L330 40"/>'],b:[307,34]},farol:{s:['<ellipse cx="322" cy="78" rx="11" ry="13"/>'],b:[342,66]},
+  tanque:{s:['<path d="M170 90 Q178 62 216 62 L262 62 Q272 82 258 96 L178 100 Z"/>'],b:[215,56]},
+  banco:{s:['<path d="M50 90 Q58 78 100 80 L168 84 L168 96 L62 102 Q46 100 50 90 Z"/>'],b:[100,76]},
+  lanterna:{s:['<path d="M30 78 L52 76 L56 96 L34 94 Z"/>'],b:[42,70]},
+  escape:{s:['<path d="M240 172 Q232 196 196 190 L150 156"/>','<path d="M152 148 L66 112 L60 126 L146 162 Z"/>'],b:[104,138]}},
+ sport:{
+  farol:{s:['<path d="M300 90 Q330 60 348 80 L338 108 Q316 112 300 90 Z"/>'],b:[336,68]},
+  guidao:{s:['<path d="M292 66 L316 74"/>'],b:[300,58]},garfo:{s:['<path d="M340 170 L316 108"/>'],b:[330,140]},
+  paralama:{s:['<path d="M240 108 Q290 102 304 128 L270 152 L238 142 Z"/>'],b:[262,106]},
+  filtro:{s:['<rect x="196" y="82" width="22" height="14" rx="4"/>'],b:[207,78]},
+  tanque:{s:['<path d="M176 76 Q192 56 236 62 L268 76 L258 98 L180 100 Z"/>'],b:[222,56]},
+  banco:{s:['<path d="M58 84 Q68 76 100 78 L170 96 L166 106 L68 102 Q52 98 58 84 Z"/>'],b:[104,72]},
+  lanterna:{s:['<path d="M28 70 L58 78 L60 96 L34 90 Z"/>'],b:[42,64]},
+  escape:{s:['<rect x="150" y="190" width="84" height="16" rx="8"/>','<path d="M250 172 Q250 192 234 196"/>'],b:[192,186]}}};
+/* GEO4 */
+/* ===== FORMATOS EXTRAS: pop, maxi (PCX/NMax), naked (Fazer/MT), custom, big (aventureira) ===== */
+Object.assign(FXT,{
+ pop:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="96" cy="180" r="22"/><circle cx="326" cy="180" r="22"/><path d="M312 80 Q298 122 284 172 L186 172"/><path d="M96 180 L152 178"/></g>',
+ custom:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M292 74 L256 100 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>'});
+FXT.maxi=FXT.scooter;FXT.big=FXT.trail;
+Object.assign(ZT,{
+ pop:{...ZT.scooter,
+  pneu_t:{s:['<circle cx="96" cy="180" r="34"/>'],b:[70,154]},pneu_d:{s:['<circle cx="326" cy="180" r="34"/>'],b:[352,154]},
+  freio_t:{s:['<circle cx="96" cy="180" r="12"/>'],b:[96,180]},freio_d:{s:['<circle cx="326" cy="180" r="12"/>'],b:[326,180]},
+  trans:{s:['<path d="M96 170 L152 170"/>','<path d="M96 190 L152 188"/>','<circle cx="152" cy="180" r="10"/>'],b:[124,180]},
+  paralama:{s:['<path d="M300 154 Q326 130 356 156"/>'],b:[330,128]},garfo:{s:['<path d="M326 180 L312 80"/>'],b:[312,120]},
+  guidao:{s:['<path d="M296 70 L330 62"/>'],b:[312,54]},farol:{s:['<ellipse cx="330" cy="86" rx="9" ry="11"/>'],b:[348,74]},
+  banco:{s:['<path d="M80 112 Q86 102 112 102 L186 104 L190 116 L88 122 Q76 120 80 112 Z"/>'],b:[130,98]},
+  lanterna:{s:['<path d="M58 106 L78 104 L80 120 L60 118 Z"/>'],b:[68,98]},
+  tanque:{s:['<rect x="200" y="128" width="54" height="28" rx="8"/>'],b:[226,124]},
+  motor:{s:['<rect x="134" y="146" width="60" height="36" rx="10"/>'],b:[164,142]},
+  filtro:{s:['<rect x="196" y="108" width="22" height="16" rx="6"/>'],b:[207,102]},
+  bateria:{s:['<rect x="150" y="116" width="26" height="20" rx="4"/>'],b:[163,110]},
+  amort:{s:['<path d="M130 124 L110 168"/>'],b:[124,116]},
+  escape:{s:['<rect x="118" y="192" width="70" height="14" rx="6"/>','<path d="M190 196 Q214 196 214 176"/>'],b:[152,214]}},
+ maxi:{...ZT.scooter,
+  banco:{s:['<path d="M52 98 Q60 84 108 84 L200 90 L204 106 L62 114 Q46 110 52 98 Z"/>'],b:[122,80]},
+  lanterna:{s:['<path d="M32 96 L56 94 L58 114 L34 112 Z"/>'],b:[44,88]},
+  motor:{s:['<rect x="70" y="138" width="86" height="44" rx="14"/>'],b:[113,134]},
+  filtro:{s:['<rect x="162" y="112" width="26" height="18" rx="6"/>'],b:[175,106]},
+  bateria:{s:['<rect x="132" y="116" width="26" height="20" rx="4"/>'],b:[145,110]},
+  tanque:{s:['<rect x="204" y="124" width="66" height="32" rx="10"/>'],b:[237,120]},
+  escape:{s:['<rect x="96" y="190" width="92" height="16" rx="8"/>'],b:[142,212]}},
+ naked:{
+  tanque:{s:['<path d="M168 84 Q180 58 222 60 L264 70 Q270 90 256 100 L172 102 Z"/>'],b:[218,54]},
+  banco:{s:['<path d="M62 92 Q70 82 104 84 L168 94 L166 104 L72 104 Q58 102 62 92 Z"/>'],b:[110,78]},
+  lanterna:{s:['<path d="M32 84 L62 84 L64 100 L38 98 Z"/>'],b:[46,78]},
+  farol:{s:['<path d="M316 78 L338 74 L340 96 L318 100 Z"/>'],b:[344,68]},
+  guidao:{s:['<path d="M286 62 L326 52"/>'],b:[306,46]},
+  escape:{s:['<rect x="150" y="192" width="80" height="16" rx="8"/>','<path d="M246 172 Q246 196 232 198"/>'],b:[190,214]}},
+ custom:{
+  garfo:{s:['<path d="M340 170 L292 74"/>'],b:[318,124]},guidao:{s:['<path d="M276 64 Q300 38 330 50"/>'],b:[304,36]},
+  farol:{s:['<ellipse cx="330" cy="92" rx="13" ry="13"/>'],b:[350,80]},
+  tanque:{s:['<path d="M150 98 Q160 66 204 66 Q242 66 254 90 Q246 106 160 108 Z"/>'],b:[202,60]},
+  banco:{s:['<path d="M62 106 Q70 98 100 100 L150 104 L150 114 L68 116 Q56 114 62 106 Z"/>'],b:[104,94]},
+  lanterna:{s:['<path d="M34 102 L58 100 L60 118 L38 116 Z"/>'],b:[46,94]},
+  escape:{s:['<path d="M240 172 Q240 206 176 205 L110 204"/>','<path d="M240 166 Q246 198 180 196 L112 196"/>'],b:[150,214]}},
+ big:{...ZT.trail,
+  farol:{s:['<ellipse cx="322" cy="84" rx="12" ry="15"/>','<path d="M312 64 L332 40 L338 68"/>'],b:[348,56]},
+  tanque:{s:['<path d="M164 90 Q172 58 218 58 L268 60 Q280 82 262 98 L172 102 Z"/>'],b:[216,52]},
+  banco:{s:['<path d="M46 90 Q54 76 96 78 L176 82 L176 98 L58 104 Q42 102 46 90 Z"/>'],b:[98,72]},
+  guidao:{s:['<path d="M282 48 L332 34"/>'],b:[306,28]}}});
+function mapaMoto(c,sel,nv,modelo){c=c||{};nv=nv||[];const T=tipoMoto(modelo),FX=FXT[T]||ZFX,Z=ZN.map(z=>(ZT[T]&&ZT[T][z.id])?{...z,...ZT[T][z.id]}:z);
+ return '<svg viewBox="0 0 420 232" role="img" aria-label="Mapa da moto">'+FX+Z.map(z=>{const n=c[z.id]||0;
+  return `<g class="z${n?' tem':''}${sel===z.id?' sel':''}${nv.includes(z.id)?' nova':''}" data-z="${z.id}"><title>${z.n}</title>${z.s.map(s=>s.replace('/>',' class="zs"/>')+s.replace('/>',' class="hit"/>')).join('')}${n?`<g class="bd"><circle cx="${z.b[0]}" cy="${z.b[1]}" r="9"/><text x="${z.b[0]}" y="${z.b[1]+4}">${n}</text></g>`:''}</g>`}).join('')+'</svg>'}
+const contZ=L=>{const c={};(L||[]).forEach(p=>{if(p.zona&&ZNOME[p.zona])c[p.zona]=(c[p.zona]||0)+1});return c};
+let zSel='';
+const cacheFoto = {}; let ultimo = '', criado = false, falhas = 0, dados = null, pecasVistas = new Set(), fotosVistas = new Set(), statusAnt = null, avisoT;
+const chavePeca = p => p.descricao + '|' + p.criado_em;
+
+function aviso(t) { const a = $('#aviso'); a.textContent = t; a.classList.add('on'); clearTimeout(avisoT); avisoT = setTimeout(() => a.classList.remove('on'), 5500); if (navigator.vibrate) navigator.vibrate([120, 60, 120]); }
+function confete() { const cs = ['#e1101a', '#ff7a18', '#f5a524', '#2fbf71', '#4da3ff', '#fff']; for (let i = 0; i < 45; i++) { const c = document.createElement('div'); c.className = 'confete'; c.style.cssText = `left:${Math.random() * 100}vw;background:${cs[i % cs.length]};animation-duration:${2 + Math.random() * 2.2}s;animation-delay:${Math.random() * .6}s`; document.body.appendChild(c); setTimeout(() => c.remove(), 5200); } }
+
+function monta() { // esqueleto da página: criado 1 vez só (assim a moto "anda" suave quando a etapa muda)
+  $('#app').innerHTML = `
+  <header class="entra"><img src="logo.png" alt="Matheus Motos"><div class="nome">Matheus Motos<small>Acompanhe sua revisão ao vivo</small></div><span class="chipn" id="num"></span></header>
+  <section class="card hero entra" id="hero"></section>
+  <section class="card entra"><h2>Andamento</h2>
+    <div class="road"><div class="trilho"><div class="fill" id="fill"></div></div><div class="moto-ico" id="motoIco">${ic('moto')}</div>
+      <div class="nos"><div class="no" data-i="0"><i>${ic('inbox')}</i>Recebida</div><div class="no" data-i="1"><i>${ic('wrench')}</i>Em andamento</div><div class="no" data-i="2"><i>${ic('flag')}</i>Pronta</div><div class="no" data-i="3"><i>${ic('check')}</i>Entregue</div></div></div>
+    <p class="datas" id="datas"></p></section>
+  <section class="card entra"><h2>${ic('nut')} Peças trocadas <b class="chip" id="nPecas"></b></h2><div id="pecas"></div></section>
+  <section class="card entra"><h2>${ic('cam')} Fotos do serviço <b class="chip" id="nFotos"></b></h2><div id="fotos"></div></section>
+  <div class="rod" id="rod"></div>`;
+  criado = true;
+}
+function pintaHero(d) {
+  const i = INFO[d.status] || INFO.aberta, h = $('#hero');
+  h.style.setProperty('--cor', i.cor);
+  h.innerHTML = `<p class="ola">Olá, ${esc(d.cliente)}!</p><p class="moto">${esc(d.moto || 'Sua moto')}</p>${d.placa ? `<span class="placa">${esc(d.placa)}</span>` : ''}
+    <div class="banner"><span class="em ${i.anim}">${ic(i.em)}</span><div><b>${i.tit}</b><span class="t">${i.txt}</span></div></div>`;
+}
+function pintaEstrada(d) {
+  const idx = IDX[d.status] ?? 0, p = idx / 3;
+  $('#fill').style.width = (p * 100) + '%';
+  $('#motoIco').style.left = `calc(23px + (100% - 46px) * ${p})`;
+  document.querySelectorAll('.no').forEach(n => { const k = +n.dataset.i; n.className = 'no ' + (k < idx || (idx === 3 && k === 3) ? 'feito' : k === idx ? 'atual' : ''); });
+  $('#datas').innerHTML = `Recebida em <b>${hora(d.criado_em)}</b>` + (d.iniciada_em ? `<br>Serviço iniciado em <b>${hora(d.iniciada_em)}</b>` : '') + (d.entregue_em ? `<br>Entregue em <b>${hora(d.entregue_em)}</b>` : '');
+}
+function pintaPecas(d, primeira) {
+  $('#nPecas').textContent = d.pecas.length || '';
+  $('#pecas').innerHTML = d.pecas.length
+    ? d.pecas.map(p => { const nova = !primeira && !pecasVistas.has(chavePeca(p)); return `<div class="peca ${nova ? 'nova' : primeira ? 'pop' : ''}"><span class="ic">${ic('nut')}</span><span class="nm">${esc(p.descricao)}${nova ? '<span class="novo">NOVO</span>' : ''}${p.zona && ZNOME[p.zona] ? `<small class="zt">${esc(ZNOME[p.zona])}</small>` : ''}</span><b>${+p.qtd}x</b></div>`; }).join('')
+    : `<p class="vazio"><span class="em">${ic('clock')}</span>Ainda não foi trocada nenhuma peça. Assim que trocarmos, aparece aqui na hora!</p>`;
+  d.pecas.forEach(p => pecasVistas.add(chavePeca(p)));
+}
+function pintaMapa(d, nv) {
+  if (!$('#mapa')) return;
+  const c = contZ(d.pecas); $('#mapa').innerHTML = mapaMoto(c, zSel, nv || [], d.moto);
+  const L = zSel ? d.pecas.filter(p => p.zona === zSel) : [];
+  $('#zDet').innerHTML = zSel ? `<b>${esc(ZNOME[zSel])}</b>` + (L.length ? L.map(p => `<div class="zi">${ic('nut')}<span>${esc(p.descricao)}</span><b style="color:var(--ok)">${+p.qtd}x</b></div>`).join('') : '<p class="vazio">Nada foi trocado aqui.</p>')
+    : `<p class="vazio">${Object.keys(c).length ? 'Toque nas áreas acesas para ver o que foi trocado.' : 'Quando o mecânico trocar uma peça, a área dela acende aqui.'}</p>`;
+}
+function pintaFotos(d, primeira) {
+  $('#nFotos').textContent = d.fotos.length || '';
+  $('#fotos').className = d.fotos.length ? 'fotos' : '';
+  $('#fotos').innerHTML = d.fotos.length
+    ? d.fotos.map(f => `<figure class="foto ${!primeira && !fotosVistas.has(f.id) ? 'nova' : ''}" data-id="${f.id}" style="margin:0"><img alt="Foto do serviço">${f.legenda ? `<figcaption>${esc(f.legenda)}</figcaption>` : ''}</figure>`).join('')
+    : `<p class="vazio"><span class="em">${ic('cam')}</span>As fotos do serviço vão aparecer aqui.</p>`;
+  d.fotos.forEach(f => { fotosVistas.add(f.id); carregaFoto(f.id); });
+  aplicaFotos();
+}
+async function carregaFoto(id) {
+  if (cacheFoto[id]) return; cacheFoto[id] = 'carregando';
+  try { cacheFoto[id] = await rpc('pdv_acompanhar_foto', { p_token: token, p_foto: id }) || ''; aplicaFotos(); } catch { delete cacheFoto[id]; }
+}
+function aplicaFotos() {
+  document.querySelectorAll('.foto').forEach(f => { const s = cacheFoto[f.dataset.id], im = f.querySelector('img'); if (s && s !== 'carregando' && im.getAttribute('src') !== s) { im.onload = () => f.classList.add('ok'); im.src = s; } });
+}
+function pintaRodape() {
+  if (!dados) return; const m = Math.max(0, Math.round((Date.now() - new Date(dados.atualizado_em || dados.criado_em)) / 60000));
+  $('#rod').innerHTML = `<span></span>Ao vivo · última novidade ${m < 1 ? 'agora mesmo' : m < 60 ? 'há ' + m + ' min' : hora(dados.atualizado_em || dados.criado_em)} · <a href="#" onclick="trocaPlaca();return false" style="color:var(--suave)">Trocar placa</a>`;
+}
+function desenha(d) {
+  const primeira = !criado; if (primeira) monta();
+  $('#num').textContent = 'Nº ' + String(d.numero).padStart(4, '0');
+  if (!primeira) { // avisa o que chegou de novo enquanto o cliente está com a página aberta
+    const nP = d.pecas.filter(p => !pecasVistas.has(chavePeca(p))), nF = d.fotos.filter(f => !fotosVistas.has(f.id));
+    if (d.status !== statusAnt) { aviso((INFO[d.status] || INFO.aberta).tit); if (d.status === 'pronta') confete(); }
+    else if (nP.length) aviso('Peça trocada: ' + nP[nP.length - 1].descricao + (nP[nP.length - 1].zona && ZNOME[nP[nP.length - 1].zona] ? ' · ' + ZNOME[nP[nP.length - 1].zona] : ''));
+    else if (nF.length) aviso('Nova foto do serviço!');
+  } else if (d.status === 'pronta') setTimeout(confete, 900);
+  const nv = primeira ? [] : [...new Set(d.pecas.filter(p => p.zona && !pecasVistas.has(chavePeca(p))).map(p => p.zona))];
+  if (nv.length) zSel = nv[nv.length - 1]; // a moto já abre mostrando o lugar da peça nova
+  pintaHero(d); pintaEstrada(d); pintaPecas(d, primeira); pintaMapa(d, nv); pintaFotos(d, primeira);
+  statusAnt = d.status; dados = d; pintaRodape();
+}
+async function atualiza() {
+  try {
+    const d = await rpc('pdv_acompanhar', { p_token: token }); falhas = 0;
+    const s = JSON.stringify(d); if (s !== ultimo) { ultimo = s; desenha(d); }
+  } catch (e) {
+    if (!ultimo) $('#app').innerHTML = '<div class="card erro"><span class="em">' + ic('search') + '</span><h2 style="justify-content:center">Link não encontrado</h2><p class="vazio" style="justify-content:center">Confira a placa ou peça um novo link à Matheus Motos.</p><p style="margin-top:16px"><a href="#" onclick="trocaPlaca();return false" style="color:var(--suave)">Entrar pela placa</a></p></div>';
+    else if (++falhas > 3) $('#rod').textContent = 'Sem conexão… tentando de novo';
+  }
+}
+document.addEventListener('click', e => {
+  const f = e.target.closest('.foto.ok');
+  if (f) { $('#zoom img').src = f.querySelector('img').src; $('#zoom').style.display = 'flex'; } else if (e.target.closest('#zoom')) $('#zoom').style.display = 'none';
+});
+document.addEventListener('click', e => { const z = e.target.closest('#mapa [data-z]'); if (z && dados) { zSel = zSel === z.dataset.z ? '' : z.dataset.z; pintaMapa(dados); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) atualiza(); });
+/* ===== ENTRADA PELA PLACA (sem link) ===== */
+function trocaPlaca() { try { localStorage.removeItem('mm_cli_t'); } catch {} location.replace(location.pathname); }
+function telaPlaca(msg) {
+  $('#app').innerHTML = `<div class="card erro" style="padding:28px 18px"><img src="logo.png" alt="" style="width:96px;height:96px;border-radius:50%;object-fit:contain;margin-bottom:12px"><h2 style="justify-content:center;margin-bottom:6px">Acompanhe sua moto</h2><p class="vazio" style="justify-content:center;margin-bottom:16px">Digite a placa da sua moto para ver o que está acontecendo.</p>
+  <form id="fPl"><input id="pl" maxlength="8" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABC1D23" style="width:100%;text-align:center;letter-spacing:4px;font:700 26px var(--corpo);text-transform:uppercase;padding:14px;border-radius:12px;border:1px solid var(--linha);background:#0a0a0c;color:var(--texto)">
+  <div id="plE" style="color:var(--verm);min-height:1.3em;margin:10px 0;font-size:14px">${esc(msg || '')}</div>
+  <button style="width:100%;padding:14px;border:0;border-radius:12px;background:var(--verm);color:#fff;font:600 17px var(--corpo)">Ver minha moto</button></form>
+  <p style="margin-top:22px"><a href="celular/index.html" style="color:var(--suave);font-size:14px">Sou da loja</a></p></div>`;
+  $('#fPl').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true; $('#plE').textContent = '';
+    try { const t = await rpc('pdv_acompanhar_placa', { p_placa: $('#pl').value }); try { localStorage.setItem('mm_cli_t', t); } catch {} location.replace(location.pathname); }
+    catch (er) { b.disabled = false; $('#plE').textContent = /function|schema cache|could not find/i.test(er.message) ? 'App ainda não liberado: falta rodar o ATUALIZAR-APP.sql no Supabase.' : er.message; }
+  };
+}
+if (token) { atualiza(); setInterval(() => { if (!document.hidden) atualiza(); }, 5000); setInterval(pintaRodape, 20000); } else telaPlaca();
+/* ===== APP INSTALÁVEL (cliente) =====
+   Guarda o link da moto no celular e deixa instalar na tela inicial. O manifesto é montado na hora com o token do cliente,
+   assim o app instalado (inclusive no iPhone) já abre direto na moto dele. */
+(function(){
+ try{const base=new URL('./',location.href).href,u=new URL(location.href);u.hash='';if(token)u.searchParams.set('t',token);
+  const m={name:'Matheus Motos — Minha moto',short_name:'Minha moto',lang:'pt-BR',display:'standalone',background_color:'#0a0a0c',theme_color:'#0a0a0c',start_url:u.href,scope:base,id:base+'cliente',icons:[{src:base+'icone-192.png',sizes:'192x192',type:'image/png'},{src:base+'icone-512.png',sizes:'512x512',type:'image/png'}]};
+  if(token)document.getElementById('mf').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}))}catch{}
+ if('serviceWorker' in navigator)navigator.serviceWorker.register('sw-cliente.js').catch(()=>{});
+ const jaApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone||!!window.Capacitor;
+ let fechado='';try{fechado=localStorage.getItem('mm_cli_inst')||''}catch{}
+ if(jaApp||fechado==='0'||!token)return;
+ const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);let ev=null;
+ const b=document.createElement('div');
+ b.style.cssText='position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));max-width:496px;margin:0 auto;z-index:15;background:#1b1b20;border:1px solid var(--linha);border-radius:14px;padding:12px 14px;display:none;gap:10px;align-items:center;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,.5)';
+ b.innerHTML='<span id="iT" style="flex:1"></span><button id="iB" style="background:var(--verm);color:#fff;border:0;border-radius:10px;padding:9px 14px;font:600 14px inherit;display:none">Instalar</button><button id="iX" aria-label="Fechar" style="background:none;border:0;color:var(--suave);font-size:20px;padding:4px 8px">✕</button>';
+ document.body.appendChild(b);
+ const mostra=t=>{b.querySelector('#iT').textContent=t;b.style.display='flex'};
+ b.querySelector('#iX').onclick=()=>{b.style.display='none';try{localStorage.setItem('mm_cli_inst','0')}catch{}};
+ b.querySelector('#iB').onclick=async()=>{if(!ev)return;ev.prompt();await ev.userChoice.catch(()=>{});ev=null;b.style.display='none'};
+ addEventListener('beforeinstallprompt',e=>{e.preventDefault();ev=e;b.querySelector('#iB').style.display='block';mostra('Instale o app para acompanhar sua moto com um toque.')});
+ addEventListener('appinstalled',()=>{b.style.display='none'});
+ if(ios)mostra('Para instalar: toque em Compartilhar e depois em “Adicionar à Tela de Início”.');
+})();
+</script>
+</body>
+</html>
