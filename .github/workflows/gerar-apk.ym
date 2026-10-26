@@ -1,0 +1,32 @@
+name: Gerar APK
+on:
+  workflow_dispatch:
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Montar o app
+        run: |
+          mkdir -p app/www
+          tar --exclude=./app --exclude=./app-android --exclude=./.github --exclude=./.git --exclude=node_modules --exclude='*.sql' --exclude='*.zip' --exclude='*.yml' -cf - . | tar -xf - -C app/www
+          cd app
+          echo '{"name":"mj-motos-app","version":"1.0.0","private":true}' > package.json
+          echo '{"appId":"br.com.mjmotos.app","appName":"MJ Motos","webDir":"www","server":{"androidScheme":"https"}}' > capacitor.config.json
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+          npx cap sync android
+      - name: Gerar o APK
+        working-directory: app/android
+        run: ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MJ-Motos-APK
+          path: app/android/app/build/outputs/apk/debug/app-debug.apk
