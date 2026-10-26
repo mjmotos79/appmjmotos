@@ -88,13 +88,15 @@ jobs:
           mkdir -p saida
           if [ -n "$KS_B64" ]; then cp app-android/android/app/build/outputs/apk/release/app-release.apk saida/MJ-Motos.apk
           else cp app-android/android/app/build/outputs/apk/debug/app-debug.apk saida/MJ-Motos.apk; fi
-      - name: Conferir se o icone da MJ entrou no APK
+      - name: Conferir icone MJ, site e animacao
         run: |
-          unzip -l saida/MJ-Motos.apk > lista.txt
-          grep -q 'mj_fg' lista.txt || { echo "::error::O icone da MJ NAO entrou no APK"; exit 1; }
-          grep -q 'assets/public/index.html' lista.txt || { echo "::error::O site NAO entrou no APK"; exit 1; }
-          if grep -q 'assets/public/celular/' lista.txt; then echo "::warning::A pasta da loja (celular) entrou no APK"; fi
-          echo "OK: icone MJ e site dentro do APK"
+          RES=app-android/android/app/src/main/res
+          test -f $RES/drawable-xxxhdpi/mj_fg.png || { echo "::error::Logo da MJ nao esta no projeto do app"; exit 1; }
+          grep -q 'mj_fg' $RES/mipmap-anydpi-v26/ic_launcher.xml || { echo "::error::Icone do app nao aponta para a logo da MJ"; exit 1; }
+          unzip -p saida/MJ-Motos.apk assets/public/index.html > idx.html || { echo "::error::Site nao entrou no APK"; exit 1; }
+          grep -q 'id="mjs"' idx.html || { echo "::error::Animacao nao esta no site do APK"; exit 1; }
+          if grep -q 'Sou da loja' idx.html; then echo "::error::O link Sou da loja ainda esta no APK"; exit 1; fi
+          echo "OK: logo MJ, animacao e site dentro do APK"
       - uses: actions/upload-artifact@v4
         with:
           name: MJ-Motos-APK
