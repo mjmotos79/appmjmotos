@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#000000"><meta name="robots" content="noindex">
+<title>Matheus Motos — Celular</title>
+<link rel="icon" href="logo.png"><link rel="manifest" href="manifest.json"><link rel="apple-touch-icon" href="icone-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="MJ Motos"><meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:ital,wght@1,700;1,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<style>
+:root{--preto:#000;--grafite:#121214;--linha:#2a2a2e;--texto:#f2f2f2;--suave:#9a9aa2;--verm:#e1101a;--verm2:#9c0a11;--ok:#2fbf71;--alerta:#f5a524;--tit:'Barlow Condensed','Arial Narrow',Impact,sans-serif;--corpo:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--preto)}
+body{color:var(--texto);font:16px/1.4 var(--corpo);padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+.oculto{display:none!important}
+header{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--linha)}
+header img{width:44px;height:44px;border-radius:50%;object-fit:contain}
+header b{font:italic 800 21px/1 var(--tit);text-transform:uppercase;letter-spacing:.5px;display:block}
+header small{color:var(--suave);font-size:12px}
+header button{margin-left:auto}
+main{max-width:560px;margin:auto;padding:14px}
+.card{background:var(--grafite);border:1px solid var(--linha);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font:italic 800 20px var(--tit);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+label{display:block;font-size:13px;color:var(--suave);margin-top:10px}
+input,select,textarea{width:100%;margin-top:4px;padding:12px;border-radius:10px;border:1px solid var(--linha);background:#0a0a0c;color:var(--texto);font:inherit;font-size:17px}
+.btn{width:100%;margin-top:14px;padding:14px;border:0;border-radius:10px;background:var(--verm);color:#fff;font:600 17px var(--corpo)}
+.btn.sec{background:transparent;border:1px solid var(--linha);color:var(--suave);width:auto;margin:0;padding:8px 12px;font-size:14px}
+.btn:disabled{opacity:.5}
+.row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--linha)}.row:last-child{border:0}
+.row small,.mu{color:var(--suave)}
+.big{font:italic 800 34px var(--tit)}.ok{color:var(--ok)}.ru{color:var(--verm)}.al{color:var(--alerta)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.g2 .card{margin:0}.g2 small{color:var(--suave);display:block}
+.y{background:rgba(225,16,26,.14);border-color:var(--verm2)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--grafite);border-top:1px solid var(--linha);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;background:none;border:0;color:var(--suave);padding:9px 2px;font:500 11px var(--corpo)}
+nav button.on{color:var(--verm)}nav b{display:block;font-size:20px}
+#sheet{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:flex-end;z-index:9}
+#sheet>div{background:var(--grafite);border-top:2px solid var(--verm);border-radius:18px 18px 0 0;width:100%;max-height:92vh;overflow:auto;padding:16px 16px calc(20px + env(safe-area-inset-bottom,0px));max-width:560px;margin:auto}
+#toast{position:fixed;left:14px;right:14px;top:calc(12px + env(safe-area-inset-top,0px));background:var(--ok);color:#04130a;padding:12px;border-radius:10px;z-index:99;font-weight:600;text-align:center}
+#toast.err{background:var(--verm);color:#fff}
+.erro{color:var(--verm);min-height:1.2em;margin-top:8px;font-size:14px}
+.chk{display:flex;gap:10px;align-items:center;padding:8px 0;color:var(--texto);font-size:15px}.chk input{width:22px;margin:0}.chk input[type=number]{width:60px;padding:6px}
+#auth{max-width:420px;margin:auto;padding:30px 14px;text-align:center}#auth img{width:110px;border-radius:50%;margin-bottom:10px}#auth form{text-align:left}
+
+/* campo de data não vaza mais para fora do cartão */
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;width:100%;min-height:50px;text-align:left;line-height:1.2}
+input[type=date]::-webkit-date-and-time-value{text-align:left;min-height:1.2em}
+.card,.g2>*{min-width:0}.card{overflow:hidden}
+nav button{font-size:10.5px;padding:8px 0}nav b{font-size:18px}
+#offbar{background:#3a2a05;color:#ffd48a;font-size:13px;text-align:center;padding:6px 10px}
+.tag{padding:3px 9px;border-radius:99px;font-size:12px;font-weight:600;white-space:nowrap}
+.placa{display:inline-block;border:1px solid var(--linha);border-radius:6px;padding:2px 8px;letter-spacing:2px;font-weight:700;margin:4px 0}
+.stb.on{background:var(--verm);border-color:var(--verm);color:#fff}
+.fts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.fts figure{margin:0;position:relative}.fts img{width:100%;border-radius:10px;display:block}
+.fts button{position:absolute;top:4px;right:4px}
+
+/* MAPA DA MOTO */
+.mapa{background:#0a0a0c;border:1px solid var(--linha);border-radius:14px;padding:6px}
+.mapa svg{width:100%;height:auto;display:block}
+.mapa .fx{fill:none;stroke:#3a3a42;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.mapa .zs{fill:transparent;stroke:#7a7a85;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;transition:all .25s}
+.mapa .hit{fill:transparent;stroke:transparent;stroke-width:20}
+.mapa .z{cursor:pointer}
+.mapa .z.tem .zs{stroke:var(--ok);fill:rgba(47,191,113,.2);filter:drop-shadow(0 0 4px rgba(47,191,113,.7))}
+.mapa .z.sel .zs{stroke:var(--verm);fill:rgba(225,16,26,.28);filter:drop-shadow(0 0 6px rgba(225,16,26,.8))}
+.mapa .z.nova .zs{animation:zp .9s ease-in-out infinite alternate}
+@keyframes zp{to{stroke-width:7}}
+.mapa .bd circle{fill:var(--ok)}.mapa .bd text{fill:#04130a;font:700 12px Barlow,sans-serif;text-anchor:middle;pointer-events:none}
+.mapa .z.sel .bd circle{fill:var(--verm)}.mapa .z.sel .bd text{fill:#fff}
+.zdet{margin-top:10px}.zdet>b{display:block;margin-bottom:6px}
+.zi{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);margin-bottom:6px}.zi span{flex:1}
+.zt{display:block;color:var(--suave);font-size:12px;font-weight:400}
+.sg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sg button{background:#0a0a0c;border:1px solid var(--linha);color:var(--texto);border-radius:99px;padding:6px 12px;font:500 13px var(--corpo)}
+</style></head><body>
+<section id="auth" class="oculto"><img src="logo.png" data-logo alt="">
+<form class="card" id="fAuth"><h2>Autorizar este celular</h2>
+<p class="mu" id="msgAuth">Só o administrador pode liberar. Depois disso, o celular entra direto.</p>
+<label>Nome do administrador<input id="aUser" autocomplete="off" required></label>
+<label>Senha<input id="aPin" type="password" autocomplete="new-password" required></label>
+<label>Nome deste celular<input id="aPc" value="Celular"></label>
+<div class="erro" id="aErro"></div><button class="btn">Autorizar</button></form></section>
+<div id="app" class="oculto"><div id="offbar" class="oculto"></div><header><img src="logo.png" data-logo alt=""><div><b id="nome">Matheus Motos</b><small>Gestão pelo celular</small></div><button class="btn sec" id="btnOp"></button></header>
+<main id="view"></main><nav id="nav"></nav></div>
+<div id="sheet" class="oculto"><div id="sheetIn"></div></div><div id="toast" class="oculto"></div>
+<script>
+const URL_="https://gbfsfxttlrwzqqjrbrvh.supabase.co";
+const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdiZnNmeHR0bHJ3enFxanJicnZoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEzMjQyNDgsImV4cCI6MjEwNjkwMDI0OH0.2RyTC3gl9EY3L0HZHLttG9wdNIzpXtGIGGX2_okjyBQ";
+const $=s=>document.querySelector(s);
+const R=v=>'R$ '+Number(v||0).toFixed(2).replace('.',',');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const numBR=v=>parseFloat(String(v).replace(',','.'))||0;
+const isoHoje=()=>new Date().toLocaleDateString('sv');
+const dataBR=d=>String(d).split('-').reverse().join('/');
+const hora=d=>new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+const mk=t=>supabase.createClient(URL_,KEY,{auth:{persistSession:false},global:{headers:t?{'x-device-token':t}:{}}});
+let db,F=[],op=localStorage.getItem('mm_cel_op')||'',sess=null,tab='ini',dia=isoHoje(),CFG={};
+const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços']];
+const GASTOS_NOMES=['Almoço / lanche','Combustível','Peça / material','Ferramenta','Limpeza','Água / luz / internet','Transporte / frete','Vale / adiantamento','Outros'];
+const FORMAS_REEMB=['Dinheiro','Pix','Estorno no cartão','Outro'];
+function toast(m,e){const t=$('#toast');t.textContent=m;t.className=e?'err':'';clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add('oculto'),e?5000:2500)}
+/* ===== MODO SEM INTERNET =====
+   O que é: guarda no celular a última cópia do que você já abriu (relatórios, motos, gastos) e uma "fila" do que
+   você lançar sem internet. Para que serve: o app abre e funciona na loja mesmo se o Wi-Fi cair; quando a internet volta, a fila é enviada sozinha. */
+const idb=new Promise((ok,no)=>{const r=indexedDB.open('mjm',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const idbGet=k=>idb.then(d=>new Promise(ok=>{const q=d.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>ok(q.result);q.onerror=()=>ok(undefined)})).catch(()=>undefined);
+const idbSet=(k,v)=>idb.then(d=>new Promise(ok=>{const t=d.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok();t.onerror=()=>ok()})).catch(()=>{});
+const h256=async t=>{try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(t));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{return''}};
+const LEIT=new Set(['obter_config','listar_produtos','pdv_rel_vendas','pdv_rel_fiado','pdv_rel_reembolsos','pdv_rel_gastos','pdv_fechamento_listar','listar_fiado','pdv_gasto_livre_listar','listar_vendas_reembolso','pdv_rel_manutencao','pdv_os_livre_listar','pdv_os_acomp_detalhe']);
+const ckey=(n,a)=>'c:'+n+':'+JSON.stringify(a||{},(k,v)=>k==='p_pin'?undefined:v);
+const isNet=m=>!navigator.onLine||/failed to fetch|networkerror|load failed|network connection|fetch/i.test(m||'');
+let off=false;
+async function pintaBar(){const q=(await idbGet('fila'))||[],b=$('#offbar');if(!b)return;
+ const t=(off?'📴 Sem internet — mostrando o que carregou por último. ':'')+(q.length?`⏳ ${q.length} lançamento${q.length>1?'s':''} aguardando envio.`:'');b.textContent=t;b.classList.toggle('oculto',!t)}
+function setOff(v){if(off!==v){off=v;pintaBar()}}
+async function rpc(n,a){
+ let r;try{r=await db.rpc(n,a)}catch(e){r={error:{message:String(e&&e.message||e)}}}
+ if(r.error){const e=new Error(r.error.message);
+  if(isNet(r.error.message)){e.net=true;setOff(true);
+   if(LEIT.has(n)){const c=await idbGet(ckey(n,a));if(c!==undefined)return c.v}
+   e.message='Sem internet. Conecte para fazer isso (ou abrir dados que ainda não foram carregados).'}
+  throw e}
+ setOff(false);if(LEIT.has(n))idbSet(ckey(n,a),{v:r.data,t:Date.now()});return r.data}
+/* lançar algo: se estiver sem internet, guarda na fila e envia depois */
+async function mut(n,a,desc){
+ try{return{r:await rpc(n,a)}}catch(e){if(!e.net)throw e;
+  const q=(await idbGet('fila'))||[];q.push({n,a,d:desc||n});await idbSet('fila',q);pintaBar();
+  toast('Sem internet: guardado no celular. Envio sozinho quando voltar.');return{queued:true}}}
+let enviando=false;
+async function enviaFila(){if(enviando||!db)return;enviando=true;let ok=0;
+ try{let q=(await idbGet('fila'))||[];
+  while(q.length){const it=q[0];
+   try{await rpc(it.n,it.a);ok++}catch(e){if(e.net)break;toast('Não enviou ('+it.d+'): '+e.message,1)}
+   q.shift();await idbSet('fila',q)}
+  if(ok)toast(ok+' lançamento'+(ok>1?'s':'')+' enviado'+(ok>1?'s':'')+' ao sistema.')}finally{enviando=false;pintaBar()}}
+addEventListener('online',()=>{enviaFila()});addEventListener('offline',()=>setOff(true));
+const semBanco=e=>e.net?e.message:/schema cache|could not find/i.test(e.message)?'Falta rodar o ATUALIZAR-*.sql correspondente no Supabase.':e.message;
+function sheet(h){$('#sheetIn').innerHTML=h;$('#sheet').classList.remove('oculto')}
+function fecha(){$('#sheet').classList.add('oculto')}
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')fecha()};
+/* ---- autorização do celular (igual ao PC) ---- */
+$('#fAuth').onsubmit=async e=>{e.preventDefault();$('#aErro').textContent='';
+ const{data,error}=await mk().rpc('autorizar_pc',{p_usuario:$('#aUser').value,p_pin:$('#aPin').value,p_nome:$('#aPc').value});
+ if(error)return $('#aErro').textContent='Erro ao conectar. Tente de novo.';
+ if(data==='BLOQUEADO')return $('#aErro').textContent='Muitas tentativas erradas. Aguarde 15 minutos.';
+ if(!data)return $('#aErro').textContent='Usuário ou senha incorretos, ou sem permissão de administrador.';
+ localStorage.setItem('mm_cel_token',data);location.reload()};
+async function iniciar(){
+ const t=localStorage.getItem('mm_cel_token');if(!t)return $('#auth').classList.remove('oculto');
+ if(typeof supabase==='undefined'){document.body.innerHTML='<p style="padding:30px;color:#fff">Abra o app uma vez com internet para ele poder funcionar sem internet.</p>';return}
+ db=mk(t);const f=await db.from('pdv_funcionarios').select('*').order('nome');
+ if(f.error){/* sem internet: usa a última lista guardada, NÃO tira a autorização */
+  F=(await idbGet('F'))||[];setOff(true);
+  if(!F.length){document.body.innerHTML='<p style="padding:30px;color:#fff">Sem internet e este celular ainda não guardou os dados. Conecte uma vez para usar offline.</p>';return}}
+ else{F=f.data||[];
+  if(!F.length){localStorage.removeItem('mm_cel_token');$('#msgAuth').textContent='Este celular não está autorizado (ou foi revogado). Peça ao administrador.';return $('#auth').classList.remove('oculto')}
+  idbSet('F',F)}
+ try{CFG=(await rpc('obter_config'))||{}}catch{}
+ if(CFG.logo)document.querySelectorAll('img[data-logo]').forEach(i=>i.src=CFG.logo);
+ try{if(CFG.cfg){const c=typeof CFG.cfg==='string'?JSON.parse(CFG.cfg):CFG.cfg;if(c&&c.nome)$('#nome').textContent=c.nome}}catch{}
+ if(!F.some(x=>x.id===op))op='';
+ $('#app').classList.remove('oculto');desenha();ir('ini');pintaBar();enviaFila()}
+function opNome(){return(F.find(f=>f.id===op)||{}).nome||''}
+function desenha(){$('#btnOp').textContent=opNome()||'Quem é você?';$('#btnOp').onclick=escolherOp}
+function escolherOp(){sheet(`<h2>Quem está usando?</h2>${F.map(f=>`<button class="btn sec" style="width:100%;margin-bottom:8px;padding:14px;font-size:17px" data-o="${f.id}">${esc(f.nome)}</button>`).join('')}`);
+ $('#sheetIn').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;op=b.dataset.o;localStorage.setItem('mm_cel_op',op);sess=null;fecha();desenha();ir(tab)}}
+/* ---- senha (uma vez por sessão) ---- */
+function pedeSenha(perm,titulo){return new Promise((ok,no)=>{
+ if(sess)return ok(sess);
+ sheet(`<h2>${titulo||'Área restrita'}</h2><label>Quem é você?<select id="sId">${F.map(f=>`<option value="${f.id}" ${f.id===op?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></label><label>Senha<input id="sPin" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"></label><div class="erro" id="sErr"></div><button class="btn" id="sOk">Entrar</button><button class="btn sec" id="sNo" style="width:100%;margin-top:8px;padding:12px">Cancelar</button>`);
+ $('#sNo').onclick=()=>{fecha();no()};
+ $('#sOk').onclick=async()=>{const id=$('#sId').value,pin=$('#sPin').value;
+  const nome=(F.find(f=>f.id===id)||{}).nome,h=await h256(id+':'+pin),pk='pin:'+id;
+  try{const r=await rpc('verificar_acesso',{p_func:id,p_pin:pin,p_perm:perm||null});
+   if(!r.ok){$('#sPin').value='';return $('#sErr').textContent=r.msg||'Senha incorreta'}
+   const rec=(await idbGet(pk))||{};const oks=new Set(rec.h===h?rec.ok:[]);oks.add(perm||'');idbSet(pk,{h,ok:[...oks]});
+   sess={id,pin,nome};fecha();ok(sess)}
+  catch(e){if(!e.net)return $('#sErr').textContent=e.message;
+   /* sem internet: só entra quem já entrou com essa mesma senha neste celular */
+   const rec=await idbGet(pk);
+   if(h&&rec&&rec.h===h&&rec.ok.includes(perm||'')){sess={id,pin,nome,offline:true};fecha();ok(sess)}
+   else $('#sErr').textContent='Sem internet: só entra offline quem já entrou antes neste celular, com a mesma senha.'}}})}
+/* ---- ESTOQUE (só leitura: o PDV atualiza a cada venda/entrada; esta aba sincroniza sozinha a cada 20 s) ---- */
+let ES={q:'',sit:'',cat:'',ord:'nome',L:[],max:80,t:0,busy:false,op:new Set()};
+const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const esSit=p=>+p.estoque<=0?'z':+p.estoque<=+p.estoque_minimo?'b':'o';
+const ESN={z:'Zerado',b:'Baixo',o:'OK'},ESC={z:'var(--verm)',b:'var(--alerta)',o:'var(--ok)'},SEMCAT='Sem categoria';
+async function esCarrega(s,quieto){
+ if(ES.busy)return;ES.busy=true;
+ try{const l=await rpc('listar_produtos',{p_func:s.id,p_pin:s.pin});ES.L=(l||[]).filter(p=>p.ativo!==false);ES.t=Date.now();if(tab==='es')esPinta()}
+ catch(e){if(!e.net)sess=null;if(!quieto&&tab==='es')$('#esL').innerHTML=`<div class="card"><p class="ru">${esc(e.message)}</p><button class="btn" onclick="telaEs()">Tentar de novo</button></div>`}
+ finally{ES.busy=false}}
+async function telaEs(){
+ $('#view').innerHTML='<p class="mu">Carregando…</p>';
+ let s;try{s=await pedeSenha(null,'Senha para ver o estoque')}catch{return $('#view').innerHTML='<div class="card"><p class="mu">Precisa da senha para ver o estoque.</p><button class="btn" onclick="telaEs()">Digitar senha</button></div>'}
+ $('#view').innerHTML=`<div id="esK"></div><div class="card"><input id="esQ" type="search" placeholder="🔎 Nome, categoria ou código…" value="${esc(ES.q)}" autocomplete="off"><div class="sg" id="esS"></div><div class="g2" style="margin-top:8px"><select id="esC"></select><select id="esO"><option value="nome">A–Z</option><option value="menor">Menor estoque</option><option value="maior">Maior estoque</option><option value="valor">Maior valor parado</option></select></div></div><div id="esL"><p class="mu">Carregando…</p></div><p class="mu" id="esT" style="text-align:center;font-size:12px"></p>`;
+ $('#esO').value=ES.ord;
+ $('#esQ').oninput=e=>{ES.q=e.target.value;ES.max=80;esLista()};
+ $('#esC').onchange=e=>{ES.cat=e.target.value;ES.max=80;esLista()};
+ $('#esO').onchange=e=>{ES.ord=e.target.value;ES.max=80;esLista()};
+ $('#esS').onclick=e=>{const b=e.target.closest('[data-k]');if(!b)return;ES.sit=b.dataset.k;ES.max=80;esPinta()};
+ $('#esL').addEventListener('toggle',e=>{const k=e.target.dataset&&e.target.dataset.g;if(k!=null)e.target.open?ES.op.add(k):ES.op.delete(k)},true);
+ $('#esL').onclick=e=>{
+  if(e.target.closest('#esM')){ES.max+=80;return esLista()}
+  const r=e.target.closest('[data-id]');if(!r)return;const p=ES.L.find(x=>String(x.id)===r.dataset.id);if(!p)return;
+  const q=Math.max(0,+p.estoque),c=+p.custo||0,v=+p.preco||0,st=esSit(p);
+  sheet(`<h2>${esc(p.nome)}</h2><div class="row"><span>Em estoque</span><b style="color:${ESC[st]}">${+p.estoque} · ${ESN[st]}</b></div><div class="row"><span>Estoque mínimo</span><b>${+p.estoque_minimo}</b></div><div class="row"><span>Categoria</span><b>${esc(p.categoria||SEMCAT)}</b></div><div class="row"><span>Custo</span><b>${R(c)}</b></div><div class="row"><span>Preço de venda</span><b>${R(v)}</b></div>${c>0?`<div class="row"><span>Margem</span><b>${Math.round((v-c)/c*100)}%</b></div>`:''}<div class="row"><span>Total parado a custo</span><b>${R(q*c)}</b></div><div class="row"><span>Total a preço de venda</span><b>${R(q*v)}</b></div><div class="row"><span>Código de barras</span><b>${esc(p.codigo_barras||'—')}</b></div>${p.garantia?`<div class="row"><span>Garantia</span><b>${esc(p.garantia)}</b></div>`:''}<p class="mu" style="margin-top:10px;font-size:13px">Para mudar estoque ou preço, use o PDV — esta tela só mostra.</p>`)};
+ await esCarrega(s);
+ clearInterval(telaEs.i);telaEs.i=setInterval(()=>{if(tab==='es'&&!document.hidden&&sess)esCarrega(sess,true)},20000)}
+addEventListener('visibilitychange',()=>{if(!document.hidden&&tab==='es'&&sess)esCarrega(sess,true)});
+function esPinta(){
+ const L=ES.L,c={z:0,b:0,o:0};L.forEach(p=>c[esSit(p)]++);
+ const pc=L.reduce((a,p)=>a+Math.max(0,+p.estoque),0),cus=L.reduce((a,p)=>a+Math.max(0,+p.estoque)*(+p.custo||0),0);
+ const k=(n,v,x)=>`<div class="card"><small>${n}</small><b${x?' class="al"':''} style="font-size:20px">${v}</b></div>`;
+ $('#esK').innerHTML=`<div class="g2" style="margin-bottom:12px">${k('Produtos',L.length)}${k('Peças em estoque',pc)}${k('Valor a custo',R(cus))}${k('Baixo / zerado',c.b+c.z,1)}</div>`;
+ $('#esS').innerHTML=[['','Todos',L.length],['b','⚠ Baixo',c.b],['z','Zerado',c.z],['o','OK',c.o]].map(([k,n,q])=>`<button class="stb ${ES.sit===k?'on':''}" data-k="${k}">${n} · ${q}</button>`).join('');
+ const cn={};L.forEach(p=>{const k=p.categoria||SEMCAT;cn[k]=(cn[k]||0)+1});
+ $('#esC').innerHTML='<option value="">Todas as categorias</option>'+Object.keys(cn).sort((a,b)=>a.localeCompare(b)).map(k=>`<option value="${esc(k)}">${esc(k)} (${cn[k]})</option>`).join('');
+ $('#esC').value=ES.cat;
+ $('#esT').textContent='Atualizado às '+new Date(ES.t).toLocaleTimeString('pt-BR')+' · sincroniza sozinho com o PDV';
+ esLista()}
+function esLista(){
+ const q=norm(ES.q),o=ES.ord;
+ const l=ES.L.filter(p=>(!ES.sit||esSit(p)===ES.sit)&&(!ES.cat||(p.categoria||SEMCAT)===ES.cat)&&(!q||norm(p.nome+' '+(p.categoria||'')+' '+(p.codigo_barras||'')).includes(q)));
+ const val=p=>Math.max(0,+p.estoque)*(+p.custo||0),nm=(a,b)=>a.nome.localeCompare(b.nome);
+ l.sort({nome:nm,menor:(a,b)=>a.estoque-b.estoque||nm(a,b),maior:(a,b)=>b.estoque-a.estoque||nm(a,b),valor:(a,b)=>val(b)-val(a)||nm(a,b)}[o]);
+ const lin=p=>{const s=esSit(p);return `<div class="row" data-id="${p.id}" style="align-items:center"><span style="min-width:0"><b style="display:block;overflow-wrap:anywhere">${esc(p.nome)}</b><small>${esc(p.categoria||SEMCAT)} · ${R(p.preco)}</small></span><span style="text-align:right;white-space:nowrap"><b style="font-size:20px;color:${ESC[s]}">${+p.estoque}</b><small style="display:block;color:${ESC[s]}">${s==='o'?'mín. '+(+p.estoque_minimo):ESN[s]}</small></span></div>`};
+ let h;
+ if(!l.length)h='<div class="card"><p class="mu">Nenhum produto encontrado.</p></div>';
+ else if(o==='nome'&&!q&&!ES.cat&&!ES.sit){
+  const g={};l.forEach(p=>{(g[p.categoria||SEMCAT]=g[p.categoria||SEMCAT]||[]).push(p)});
+  h=Object.keys(g).sort((a,b)=>a.localeCompare(b)).map(k=>{const a=g[k],al=a.filter(p=>esSit(p)!=='o').length;
+   return `<details class="card" data-g="${esc(k)}" ${ES.op.has(k)?'open':''}><summary style="display:flex;justify-content:space-between;gap:8px;font-weight:600;cursor:pointer"><span>${esc(k)} <span class="mu">· ${a.length}</span></span>${al?`<span class="al">⚠ ${al}</span>`:''}</summary>${a.map(lin).join('')}</details>`}).join('')}
+ else h=`<div class="card">${l.slice(0,ES.max).map(lin).join('')}</div>`+(l.length>ES.max?`<button class="btn sec" id="esM" style="width:100%">Mostrar mais (${l.length-ES.max})</button>`:'');
+ $('#esL').innerHTML=h}
+function ir(t){tab=t;$('#nav').innerHTML=TABS.map(x=>`<button class="${x[0]===t?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('');
+ ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa}[t])()}
+const barDia=()=>`<div class="card"><label style="margin:0">Dia<input type="date" id="dd" value="${dia}"></label></div>`;
+const ligaDia=f=>{$('#dd').onchange=e=>{dia=e.target.value||isoHoje();f()}};
+const limites=d=>{const x=new Date(d+'T12:00:00');return[new Date(x.getFullYear(),x.getMonth(),x.getDate()),new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)]};
+/* ---- mesma conta do caixa do PDV ---- */
+async function caixaGeral(a,ini,fim){
+ const pa={...a,p_ini:new Date(2000,0,1).toISOString(),p_fim:fim.toISOString()};
+ const[v,fr,rb,gs,fc]=await Promise.all([rpc('pdv_rel_vendas',pa),rpc('pdv_rel_fiado',pa).catch(()=>({})),rpc('pdv_rel_reembolsos',pa).catch(()=>[]),rpc('pdv_rel_gastos',pa).catch(()=>null),rpc('pdv_fechamento_listar',pa).catch(()=>[])]);
+ let antes=0,entPer=0,gAntes=0,gasPer=0,basePer=0,entrPer=0,reeb=0,vend=0;const gastos=[],fiadoNovos=[];
+ const soma=(t,x)=>{if(new Date(t)<ini)antes+=x;else entPer+=x};
+ (v||[]).forEach(x=>{if(!/fiado/i.test(x.forma_pagamento||'')){soma(x.criado_em,+x.total);if(new Date(x.criado_em)>=ini)vend+=+x.total}else if(new Date(x.criado_em)>=ini)fiadoNovos.push(x)});
+ ((fr&&fr.recebido)||[]).forEach(x=>soma(x.criado_em,+x.valor));
+ (rb||[]).forEach(x=>{soma(x.criado_em,-x.valor);if(new Date(x.criado_em)>=ini)reeb+=+x.valor});
+ (gs||[]).forEach(g=>{if(new Date(g.criado_em)<ini)gAntes+=+g.valor;else{gasPer+=+g.valor;gastos.push(g)}});
+ (fc||[]).forEach(f=>{if(new Date(f.criado_em)<ini)antes+=+f.base-+f.entrega;else{basePer+=+f.base;entrPer+=+f.entrega}});
+ return{antes:antes-gAntes,entPer,gasPer,basePer,entrPer,reeb,vend,saldo:antes-gAntes+entPer+basePer-gasPer-entrPer,gastos,fiadoNovos,fechamentos:fc||[],semGastos:gs==null}}
+/* ---- RELATÓRIO DO DIA ---- */
+async function telaIni(){
+ $('#view').innerHTML=barDia()+'<div id="r"><p class="mu">Carregando…</p></div>';ligaDia(telaIni);
+ let s;try{s=await pedeSenha('ver_relatorios','Senha para ver o relatório')}catch{return $('#r').innerHTML='<div class="card"><p class="mu">Precisa da senha para ver o relatório.</p><button class="btn" onclick="telaIni()">Digitar senha</button></div>'}
+ const[ini,fim]=limites(dia);let c;
+ try{c=await caixaGeral({p_func:s.id,p_pin:s.pin},ini,fim)}catch(e){if(!e.net)sess=null;return $('#r').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e))}</p><button class="btn" onclick="telaIni()">Tentar de novo</button></div>`}
+ const ja=c.fechamentos.find(f=>String(f.dia)===dia);
+ $('#r').innerHTML=`<div class="card y"><small class="mu">Valor do caixa</small><div class="big ${c.saldo<0?'ru':'ok'}">${R(c.saldo)}</div></div>
+ <div class="g2" style="margin-bottom:12px"><div class="card"><small>Entrou no dia</small><b class="ok" style="font-size:20px">${R(c.entPer)}</b></div><div class="card"><small>Vendas (sem fiado)</small><b style="font-size:20px">${R(c.vend)}</b></div>
+ <div class="card"><small>Gastos</small><b class="ru" style="font-size:20px">− ${R(c.gasPer)}</b></div><div class="card"><small>Reembolsos</small><b class="al" style="font-size:20px">− ${R(c.reeb)}</b></div></div>
+ <div class="card"><div class="row"><span>Fiado novo do dia</span><b>${R(c.fiadoNovos.reduce((a,x)=>a+ +x.total,0))}</b></div>
+ <div class="row"><span>Fechamento do caixa</span><b class="${ja?'ok':'al'}">${ja?'Feito · entrega '+R(ja.entrega):'Pendente'}</b></div></div>
+ ${c.gastos.length?`<div class="card"><h2>Gastos do dia</h2>${c.gastos.map(g=>`<div class="row"><span>${esc(g.nome)}<br><small>${esc(g.conceito||'')} · ${hora(g.criado_em)}</small></span><b class="ru">− ${R(g.valor)}</b></div>`).join('')}</div>`:''}
+ <button class="btn" id="bShare">Compartilhar relatório</button>`;
+ $('#bShare').onclick=()=>{const t=`RELATÓRIO ${dataBR(dia)} — ${$('#nome').textContent}\nEntrou: ${R(c.entPer)}\nGastos: ${R(c.gasPer)}\nReembolsos: ${R(c.reeb)}\nValor do caixa: ${R(c.saldo)}\nFechamento: ${ja?'feito':'pendente'}`;
+  navigator.share?navigator.share({text:t}).catch(()=>{}):navigator.clipboard.writeText(t).then(()=>toast('Relatório copiado'))}}
+/* ---- GASTOS (sem senha, igual ao PC) ---- */
+async function telaGas(){
+ $('#view').innerHTML=`<div class="card"><h2>Lançar gasto</h2><div class="row"><span class="mu">Lançado por</span><b>${esc(opNome()||'—')}</b></div>
+ <label>Valor (R$)<input id="gVal" type="number" step="0.01" inputmode="decimal" placeholder="0,00"></label>
+ <label>Nome do gasto<select id="gNome"><option value="">Escolha…</option>${GASTOS_NOMES.map(n=>`<option>${esc(n)}</option>`).join('')}</select></label>
+ <label>O que foi o gasto<textarea id="gCon" rows="2" placeholder="Ex.: almoço dos mecânicos"></textarea></label>
+ <button class="btn" id="gOk">Gravar gasto</button></div>
+ <div class="card"><label style="margin:0">Dia<input type="date" id="gDia" value="${isoHoje()}"></label><div id="gL" style="margin-top:8px"></div></div>`;
+ const lista=async()=>{try{const L=await rpc('pdv_gasto_livre_listar',{p_dia:$('#gDia').value||null})||[],t=L.reduce((s,x)=>s+ +x.valor,0);
+  $('#gL').innerHTML=`<h2 style="margin-top:8px">Total: ${R(t)}</h2>`+(L.map(g=>`<div class="row"><span>${esc(g.nome)}<br><small>${esc(g.conceito||'')} · ${esc(g.criado_por||'')} · ${hora(g.criado_em)}</small></span><span><b class="ru">− ${R(g.valor)}</b><br><button class="btn sec" style="margin-top:4px;padding:4px 8px" data-x="${g.id}">excluir</button></span></div>`).join('')||'<p class="mu">Nenhum gasto neste dia.</p>')}catch(e){$('#gL').innerHTML=`<p class="ru">${esc(semBanco(e))}</p>`}};
+ $('#gDia').onchange=lista;
+ $('#gOk').onclick=async()=>{const valor=numBR($('#gVal').value),nome=$('#gNome').value,conceito=$('#gCon').value.trim(),quem=opNome();
+  if(!(valor>0))return toast('Informe o valor.',1);if(!nome)return toast('Escolha o nome do gasto.',1);if(!conceito)return toast('Escreva o que foi o gasto.',1);
+  if(!quem){escolherOp();return toast('Escolha quem está usando.',1)}
+  try{const m=await mut('pdv_gasto_livre_salvar',{p:{valor,nome,tipo:'OPERACIONAL',conceito,quem}},'gasto de '+R(valor));if(!m.queued)toast('Gasto de '+R(valor)+' gravado.');$('#gVal').value='';$('#gNome').value='';$('#gCon').value='';lista()}catch(e){toast(semBanco(e),1)}};
+ $('#gL').onclick=async e=>{const b=e.target.closest('[data-x]');if(!b)return;let s;try{s=await pedeSenha('ver_caixa','Senha para excluir gasto')}catch{return}
+  if(!confirm('Excluir este gasto? O valor volta para o caixa.'))return;
+  try{await rpc('pdv_gasto_excluir',{p_func:s.id,p_pin:s.pin,p_id:b.dataset.x});toast('Gasto excluído.');lista()}catch(er){sess=null;toast(er.message,1)}};
+ lista()}
+/* ---- FECHAMENTO DO CAIXA ---- */
+async function telaCx(){
+ $('#view').innerHTML=barDia()+'<div id="r"><p class="mu">Carregando…</p></div>';ligaDia(telaCx);
+ let s;try{s=await pedeSenha('ver_caixa','Senha para fechar o caixa')}catch{return $('#r').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaCx()">Digitar senha</button></div>'}
+ const a={p_func:s.id,p_pin:s.pin},[ini,fim]=limites(dia);let cg,fi=[];
+ try{cg=await caixaGeral(a,ini,fim)}catch(e){if(!e.net)sess=null;return $('#r').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e))}</p></div>`}
+ try{fi=await rpc('listar_fiado',a)||[]}catch{}
+ const meta=fi.filter(x=>String(x.vencimento)<=dia).reduce((t,x)=>t+Math.max(0,+x.valor-+x.pago),0);
+ const ja=cg.fechamentos.find(f=>String(f.dia)===dia),novos=cg.fiadoNovos.reduce((t,x)=>t+ +x.total,0),saldoIni=cg.antes,cobrado=cg.entPer,gastos=cg.gasPer;
+ $('#r').innerHTML=`${ja?`<div class="card" style="border-color:var(--ok)">✔ Dia já totalizado por <b>${esc(ja.criado_por||'—')}</b> (entrega ${R(ja.entrega)}). Totalizar de novo substitui os valores.</div>`:''}
+ <div class="card"><div class="row"><span>Meta de arrecadação<br><small>fiado vencido e não pago</small></span><b class="al">${R(meta)}</b></div>
+ <div class="row"><span>Saldo do caixa no início do dia</span><b>${R(saldoIni)}</b></div>
+ <div class="row"><span>Cobrado (entrou no dia)</span><b>${R(cobrado)}</b></div>
+ <div class="row"><span>Gastos do dia</span><b class="ru">${R(gastos)}</b></div>
+ <div class="row"><span>Créditos novos (fiado)</span><b>${R(novos)}</b></div>
+ <label>Valor base entregue<input id="fBase" type="number" step="0.01" inputmode="decimal" value="${ja?(+ja.base||''):''}" placeholder="0"></label>
+ <div class="row y" style="margin-top:12px;padding:12px;border-radius:10px"><span><b>VR. REAL A ENTREGAR</b></span><b class="ok" id="fReal">${R(0)}</b></div>
+ <label>Valor entrega efetiva<input id="fEnt" type="number" step="0.01" inputmode="decimal" value="${ja?(+ja.entrega):''}" placeholder="0"></label>
+ <div class="row"><span>Faltante</span><b class="al" id="fFalta">${R(0)}</b></div><div class="row"><span>Sobrante</span><b class="ok" id="fSobra">${R(0)}</b></div>
+ <button class="btn" id="fTot">${ja?'Totalizar de novo':'Totalizar fechamento'}</button></div>`;
+ let tocou=!!ja;const calc=()=>{const base=numBR($('#fBase').value),ent=numBR($('#fEnt').value),real=saldoIni+base+cobrado-gastos;
+  $('#fReal').textContent=R(real);$('#fFalta').textContent=R(tocou&&ent<real?real-ent:0);$('#fSobra').textContent=R(tocou&&ent>real?ent-real:0);return{base,ent,real}};
+ $('#fBase').oninput=calc;$('#fEnt').oninput=()=>{tocou=true;calc()};calc();
+ $('#fTot').onclick=async()=>{if(!$('#fEnt').value.trim())return toast('Digite a entrega efetiva (pode ser 0).',1);
+  const{base,ent,real}=calc();if(!confirm(`Totalizar ${dataBR(dia)}?\nReal a entregar: ${R(real)}\nEntrega efetiva: ${R(ent)}\nO valor entregue sai do caixa.`))return;
+  try{await rpc('pdv_fechamento_salvar',{...a,p:{dia,meta,saldo_inicio:saldoIni,base,cobrado,gastos,creditos_novos:novos,real_entregar:real,faltante:ent<real?real-ent:0,sobrante:ent>real?ent-real:0,entrega:ent,quem:s.nome}});toast('Fechamento totalizado.');telaCx()}catch(e){toast(semBanco(e),1)}}}
+/* ---- REEMBOLSO ---- */
+const restante=i=>Math.max(0,i.qtd-(+i.ja_reembolsado||0));
+async function telaRe(){
+ $('#view').innerHTML='<p class="mu">Carregando…</p>';
+ let s;try{s=await pedeSenha('reembolsar','Senha para reembolsar')}catch{return $('#view').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaRe()">Digitar senha</button></div>'}
+ let L;try{L=await rpc('listar_vendas_reembolso',{p_func:s.id,p_pin:s.pin,p_dias:7})||[]}catch(e){if(!e.net)sess=null;return $('#view').innerHTML=`<div class="card"><p class="ru">${esc(e.message)}</p></div>`}
+ $('#view').innerHTML=`<div class="card"><h2>Vendas dos últimos 7 dias</h2><input id="fl" placeholder="Buscar cliente, produto, vendedor…"></div><div id="rl"></div>`;
+ const pinta=()=>{const q=$('#fl').value.toLowerCase();$('#rl').innerHTML=L.filter(v=>JSON.stringify(v).toLowerCase().includes(q)).map(v=>{const tudo=(v.itens||[]).every(i=>restante(i)===0);
+  return`<div class="card"><div class="row" style="border:0;padding:0"><b>${new Date(v.criado_em).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'})}</b><b>${R(v.total)}</b></div><small class="mu">${esc(v.cliente||'Cliente não informado')} · ${esc(v.vendedor_nome||'')}${v.fiado?' · Fiado':''}</small>
+  <div style="margin:6px 0">${(v.itens||[]).map(i=>`<div>${i.qtd}× ${esc(i.descricao)}</div>`).join('')}</div>${+v.reembolsado?`<small class="al">Já reembolsado: ${R(v.reembolsado)}</small>`:''}
+  <button class="btn" data-id="${v.id}" ${tudo||v.fiado?'disabled':''}>${tudo?'Já reembolsada':v.fiado?'Fiado':'Reembolsar'}</button></div>`}).join('')||'<p class="mu">Nenhuma venda.</p>'};
+ pinta();$('#fl').oninput=pinta;
+ $('#rl').onclick=e=>{const b=e.target.closest('button[data-id]');if(!b||b.disabled)return;const v=L.find(x=>x.id===b.dataset.id);if(v)abreRe(v,s)}}
+function abreRe(v,s){const its=v.itens||[];
+ sheet(`<h2>Reembolso</h2><label>Código do cupom do cliente *<input id="rbCod" autocapitalize="characters" autocomplete="off" placeholder="Ex.: A3F9-C21B" style="text-transform:uppercase;letter-spacing:3px;font-weight:700"></label>
+ <h2 style="margin-top:14px">O que está sendo devolvido?</h2>${its.map(i=>`<label class="chk"><input type="checkbox" data-i="${i.id}" ${restante(i)?'':'disabled'}><span style="flex:1">${esc(i.descricao)}<br><small class="mu">${R(i.preco_unit)} cada${i.produto_id?'':' · serviço'}</small></span><input type="number" min="1" max="${restante(i)}" value="${restante(i)||1}" data-q="${i.id}"></label>`).join('')}
+ <label>Cliente (opcional)<input id="rbCli" value="${esc(v.cliente||'')}"></label><label>Motivo *<input id="rbMot" placeholder="Ex.: defeito, produto errado…"></label>
+ <label>Devolvido em<select id="rbForma">${FORMAS_REEMB.map(f=>`<option>${f}</option>`).join('')}</select></label>
+ <p style="margin-top:12px">Total a devolver: <b id="rbTot" style="font-size:22px">${R(0)}</b></p><div class="erro" id="rbErr"></div>
+ <button class="btn" id="rbOk">Confirmar reembolso</button><button class="btn sec" id="rbNo" style="width:100%;margin-top:8px;padding:12px">Cancelar</button>`);
+ const calc=()=>{let t=0;const itens=[];its.forEach(i=>{const c=$(`[data-i="${i.id}"]`);if(c.checked){const n=Math.min(restante(i),Math.max(0,Math.round(+$(`[data-q="${i.id}"]`).value||0)));t+=Math.round(i.preco_unit*n*(1-(+v.desconto_pct||0)/100)*100)/100;itens.push({item:i.id,qtd:n})}});$('#rbTot').textContent=R(t);return{t,itens}};
+ $('#sheetIn').oninput=calc;$('#sheetIn').onchange=calc;$('#rbNo').onclick=fecha;
+ $('#rbOk').onclick=async()=>{const er=x=>$('#rbErr').textContent=x,{t,itens}=calc();
+  if(!$('#rbCod').value.trim())return er('Digite o código do cupom. Sem o cupom não há reembolso.');if(!itens.length)return er('Marque pelo menos um item.');if(itens.some(x=>x.qtd<1))return er('Quantidade inválida.');if(!$('#rbMot').value.trim())return er('Informe o motivo.');
+  if(!confirm(`Reembolsar ${R(t)} (${$('#rbForma').value})?\nOs produtos voltam para o estoque e não dá para desfazer.`))return;
+  $('#rbOk').disabled=true;
+  try{const rid=await rpc('gerar_reembolso',{p_func:s.id,p_pin:s.pin,p_venda:v.id,p_codigo:$('#rbCod').value.trim(),p_itens:itens,p_motivo:$('#rbMot').value.trim(),p_forma:$('#rbForma').value,p_cliente:$('#rbCli').value.trim()||null,p_garantia:null});
+   if(!rid){$('#rbOk').disabled=false;return er('O código do cupom não confere com esta venda.')}
+   fecha();toast('Reembolso feito. Produto devolvido ao estoque.');telaRe()}catch(e){$('#rbOk').disabled=false;er(/autoriz|permiss/i.test(e.message)?'Seu usuário não tem a permissão "Reembolsar".':e.message)}}}
+
+/* ---- MOTOS E SERVIÇOS (cadastrar moto, acompanhar, peças, fotos, link do cliente) ---- */
+const ST=[['aberta','Recebida','#4da3ff'],['andamento','Em andamento','#f5a524'],['pronta','Pronta','#2fbf71'],['entregue','Entregue','#9a9aa2']];
+const stInfo=x=>ST.find(i=>i[0]===x)||ST[0];
+const motoNome=o=>((o.marca||'')+' '+(o.modelo||'')).trim()||'Moto';
+const linkCli=o=>new URL('../index.html?t='+o.token,location.href).href;
+
+/* ===== MAPA DA MOTO: desenho de lado; cada ponto é uma "zona" que o mecânico toca e o cliente vê acender ===== */
+const ZN=[
+{id:'pneu_t',n:'Pneu traseiro',b:[50,140],s:['<circle cx="80" cy="170" r="44"/>'],g:['Pneu','Câmara de ar','Válvula','Rolamento da roda','Raio']},
+{id:'pneu_d',n:'Pneu dianteiro',b:[372,140],s:['<circle cx="340" cy="170" r="44"/>'],g:['Pneu','Câmara de ar','Válvula','Rolamento da roda','Raio']},
+{id:'paralama',n:'Paralama / lataria',b:[340,108],s:['<path d="M298 134 Q340 90 382 134"/>'],g:['Paralama','Carenagem','Lateral','Adesivo']},
+{id:'amort',n:'Suspensão traseira',b:[133,128],s:['<path d="M142 102 L124 156"/>'],g:['Amortecedor','Mola','Bucha','Rolamento do balança']},
+{id:'escape',n:'Escapamento',b:[160,201],s:['<path d="M240 172 Q240 202 204 201 L196 201"/>','<rect x="124" y="192" width="72" height="18" rx="8"/>'],g:['Escapamento','Silencioso','Abraçadeira','Junta do escape']},
+{id:'trans',n:'Transmissão (corrente)',b:[128,172],s:['<path d="M80 154 L176 160"/>','<path d="M80 186 L176 184"/>','<circle cx="176" cy="172" r="12"/>'],g:['Kit relação','Corrente','Coroa','Pinhão','Tensor']},
+{id:'motor',n:'Motor',b:[226,148],s:['<rect x="190" y="116" width="72" height="56" rx="10"/>','<path d="M200 116 L210 102 L250 102 L252 116"/>'],g:['Óleo do motor','Vela','Filtro de óleo','Junta','Pistão / anéis','Cabeçote','Válvulas']},
+{id:'filtro',n:'Filtro de ar / injeção',b:[281,127],s:['<rect x="268" y="112" width="26" height="30" rx="6"/>'],g:['Filtro de ar','Carburador','Corpo de injeção','Bico injetor','Mangueira']},
+{id:'bateria',n:'Bateria / elétrica',b:[163,132],s:['<rect x="148" y="120" width="30" height="24" rx="4"/>'],g:['Bateria','Regulador','CDI / ECU','Fusível','Chicote','Motor de partida']},
+{id:'tanque',n:'Tanque / combustível',b:[205,84],s:['<path d="M150 96 Q158 64 200 64 L246 68 Q262 82 250 100 L160 104 Z"/>'],g:['Tanque','Torneira','Bomba de combustível','Tampa do tanque','Filtro de gasolina']},
+{id:'banco',n:'Banco',b:[108,97],s:['<path d="M66 96 Q72 84 108 86 L150 92 L150 104 L76 108 Q62 106 66 96 Z"/>'],g:['Banco / capa','Fechadura do banco','Espuma']},
+{id:'lanterna',n:'Lanterna / rabeta',b:[52,95],s:['<path d="M42 88 L62 86 L64 104 L44 102 Z"/>'],g:['Lanterna','Lâmpada','Pisca traseiro','Suporte da placa','Rabeta']},
+{id:'garfo',n:'Suspensão dianteira',b:[322,124],s:['<path d="M340 170 L304 78"/>'],g:['Retentor do garfo','Óleo do garfo','Bengala','Bucha','Rolamento de direção']},
+{id:'guidao',n:'Guidão / painel',b:[305,44],s:['<path d="M284 66 L326 54"/>'],g:['Manete','Punho','Retrovisor','Painel','Cabo do acelerador','Pisca']},
+{id:'farol',n:'Farol',b:[343,76],s:['<ellipse cx="326" cy="90" rx="12" ry="14"/>'],g:['Lâmpada do farol','Farol','Pisca','Lente']},
+{id:'freio_t',n:'Freio traseiro',b:[80,170],s:['<circle cx="80" cy="170" r="16"/>'],g:['Pastilha','Sapata','Disco de freio','Fluido de freio','Cabo do freio']},
+{id:'freio_d',n:'Freio dianteiro',b:[340,170],s:['<circle cx="340" cy="170" r="16"/>'],g:['Pastilha','Disco de freio','Fluido de freio','Pinça','Cabo do freio']}
+];
+const ZNOME=Object.fromEntries(ZN.map(z=>[z.id,z.n]));
+const ZFX='<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M304 78 L258 100 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>';
+/* ===== TIPOS DE MOTO: o desenho muda conforme o modelo cadastrado (mesmas zonas, formas diferentes) ===== */
+/* ===== CATÁLOGO: marca → modelos (cada modelo tem um tipo de desenho) ===== */
+const MODELOS={"Honda":{"street":["CG 125","CG 150 Titan","CG 150 Fan","CG 160 Start","CG 160 Fan","CG 160 Titan","NXR 125 Bros"],"trail":["XRE 190","XRE 300","XRE 300 Sahara","NXR 150 Bros","NXR 160 Bros","XR 200","XR 250 Tornado","CRF 230F","CRF 250F","CRF 250L","Falcon NX-4","XL 700V Transalp"],"big":["XL 750 Transalp","CRF 1100L Africa Twin","NC 750X"],"scooter":["Biz 100","Biz 110i","Biz 125","C 100 Dream","Dream 100"],"sport":["CBR 250R","CBR 300R","CBR 500R","CBR 600RR","CBR 650R","CBR 1000RR","CBR 1000RR-R Fireblade"],"custom":["Shadow 750","Rebel 300","Rebel 500","Rebel 1100"],"pop":["Pop 110i","Pop 100"],"maxi":["PCX 150","PCX 160","Elite 125","Lead 110","SH 150i","SH 300i","ADV 150","ADV 350","Fusion","Burgman"],"naked":["CB 250 Twister","CB 300R","CB 300F Twister","CB 500F","CB 650F","CB 1000R","Hornet"]},"Yamaha":{"street":["YBR 125 Factor","YBR 150 Factor","Factor 125","Factor 150","Fazer 150","Crypton 115","YS 150 Fazer","YS 250 Fazer"],"naked":["MT-03","MT-07","MT-09","Fazer 250","FZ25","FZ15","FZ6","Z-Naked"],"trail":["XTZ 125","XTZ 150 Crosser","XTZ 250 Lander","XTZ 250 Ténéré","Ténéré 250","XT 660","WR 250","YZ 250F"],"big":["Ténéré 700","Tracer 700","Tracer 900","Super Ténéré 1200"],"sport":["R3","YZF-R3","YZF-R1","R1","R6","R7","YZF-R6","YZF-R7","YZF-R15"],"custom":["Dragstar 650","Midnight Star","Drag Star 250","Virago 250"],"maxi":["Fluo 125","Fluo ABS","Neo 125","Cygnus","Libero 125","NMax 160","NMax 125","XMax 250","XMax 300","Aerox 155"]},"Suzuki":{"street":["GSX 150 Bandit","Yes 125","Burgman 125","En 125 Yes","GN 125"],"naked":["Gixxer 250","GSX-S750","GSX-S1000","Bandit 650","Bandit 1250","SV 650"],"trail":["DR 650","DR-Z 400","V-Strom 650","V-Strom 250","V-Strom 1050","DL 250"],"big":["V-Strom 1050 XT"],"sport":["GSX-R 750","GSX-R 1000","GSX-R 600","Hayabusa","GSX 250R"],"custom":["Boulevard M800","Boulevard M109R","Intruder 125","Intruder 250","Marauder 250"],"maxi":["Burgman 400","Burgman 125i","Address 110"]},"Kawasaki":{"street":["Eliminator","Vulcan"],"naked":["Z300","Z400","Z650","Z750","Z800","Z900","Z1000","ER-6N"],"trail":["KLX 150","KLX 300","KLR 650","Versys-X 300"],"big":["Versys 650","Versys 1000","Versys-X 250"],"sport":["Ninja 250","Ninja 300","Ninja 400","Ninja 650","Ninja ZX-6R","Ninja ZX-10R","Ninja H2"],"custom":["Vulcan S","Vulcan 900","Vulcan 1700"]},"Shineray":{"street":["XY 50","Jet 50","Worker 125","Phoenix 50","SHI 175","XY 125"],"trail":["XY 150 Explorer","Discover 150","XTZ Explorer"],"maxi":["Jet 125","Fox 50"],"pop":["Mini Cargo"]},"Haojue":{"street":["DK 150","Master Ride 150","DR 160","DK 160","NK 150"],"trail":["DR 160 Trail","DR 300"],"maxi":["Lindy 125","Chopper Road 150","Lindy 50","VR 150","URBAN 125"]},"Dafra":{"street":["Speed 150","Next 250","Apache 150","Riva 150"],"trail":["Zig 125"],"maxi":["Citycom 300i","Citycom 200","Maxsym 400i","Cruisym 150","Kymco Agility"]},"Traxx":{"street":["JH 125","FLY 125","STAR 50","Sky 125"],"maxi":["Boss 150"]},"Royal Enfield":{"custom":["Meteor 350","Classic 350","Hunter 350","Bullet 350","Super Meteor 650"],"street":["Interceptor 650","Continental GT 650"],"big":["Himalayan 411","Himalayan 450","Scram 411"]},"Triumph":{"street":["Bonneville T100","Bonneville T120","Speed Twin","Scrambler 900","Thruxton"],"naked":["Street Triple","Speed Triple","Trident 660","Speed 400"],"big":["Tiger 660","Tiger 800","Tiger 900","Tiger 1200","Scrambler 400X"],"custom":["Rocket 3","Speedmaster"]},"BMW":{"naked":["G 310 R","F 800 R","S 1000 R"],"big":["G 310 GS","F 750 GS","F 850 GS","R 1250 GS","R 1300 GS","F 900 XR","R 1250 RT"],"sport":["S 1000 RR","S 1000 XR"],"custom":["R 18","R nineT"],"maxi":["C 400 X","C 400 GT","CE 04"]},"KTM":{"naked":["Duke 200","Duke 390","Duke 790","Duke 890","Duke 1290"],"trail":["Adventure 390","EXC 250","EXC 300","SX-F 250"],"big":["Adventure 790","Adventure 890","Adventure 1290"],"sport":["RC 200","RC 390"]},"Harley-Davidson":{"custom":["Iron 883","Sportster 1200","Fat Boy","Fat Bob","Heritage Classic","Street Glide","Road King","Softail Slim","Low Rider","Street 750","Nightster","Pan America"]},"Ducati":{"sport":["Panigale V2","Panigale V4","959 Panigale","Supersport"],"naked":["Monster","Streetfighter V4","Scrambler"],"big":["Multistrada V4","Multistrada 950","DesertX","Hypermotard"]},"Vespa":{"maxi":["Primavera 150","Sprint 150","GTS 300","LX 125","Elettrica"]},"Kymco":{"maxi":["Agility 125","Like 150","Xciting 400","Downtown 350","People S 150"]},"Avelloz":{"street":["AZ1 160","AZ1 150"],"naked":["AZ1 Naked"],"maxi":["AZ1 Scooter"]},"Voltz":{"maxi":["EVS","EV1","EVS Plus"]},"Mottu":{"pop":["Mottu Sport 110i"]}};
+const semAc=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+const _cmp=s=>semAc(s).replace(/[^a-z0-9]/g,'');
+const _CAT=[];for(const mk in MODELOS)for(const tp in MODELOS[mk])MODELOS[mk][tp].forEach(m=>_CAT.push([_cmp(m),tp,semAc(m)]));
+_CAT.sort((a,b)=>b[0].length-a[0].length);
+const modelosDe=mk=>{const k=Object.keys(MODELOS).find(x=>semAc(x)===semAc(mk));const L=k?Object.values(MODELOS[k]).flat():Object.values(MODELOS).flatMap(o=>Object.values(o).flat());return [...new Set(L)].sort((a,b)=>a.localeCompare(b,'pt-BR',{numeric:true}))};
+const tipoCat=nome=>{const c=_cmp(nome),tk=semAc(nome).split(/[^a-z0-9]+/);for(const [k,tp] of _CAT){if(k.length<3?tk.includes(k):c.includes(k))return tp}return null};
+
+function tipoMoto(m){const c=tipoCat(m);if(c)return c;const t=semAc(m);
+ if(/\b(biz|pop ?\d*|pcx|lead|elite|nmax|n-max|xmax|fluo|neo|burgman|jog|citycom|cub|c ?100|dream|sh ?\d+|vision)\b/.test(t))return'scooter';
+ if(/\b(xre|bros|lander|tenere|crosser|nxr|falcon|transalp|xtz|sahara|africa|himalayan|xr ?\d+|crf|drz|dr ?\d+|tornado|versys-?x)\b/.test(t))return'trail';
+ if(/\b(cbr|r1|r3|r6|r7|yzf|ninja|gsx-?[rs]|s1000|panigale|rs ?\d{3}|f ?800 ?gs?)\b/.test(t))return'sport';
+ return'street'}
+const FXT={
+ scooter:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="84" cy="176" r="24"/><circle cx="336" cy="176" r="24"/><path d="M318 72 Q300 110 284 168 L180 170"/><path d="M84 176 L150 174"/></g>',
+ trail:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M300 62 L254 92 L190 112 L178 160"/><path d="M80 170 L176 172"/></g>',
+ sport:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M312 100 L262 104 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>'};
+const ZT={
+ scooter:{
+  pneu_t:{s:['<circle cx="84" cy="176" r="38"/>'],b:[54,146]},pneu_d:{s:['<circle cx="336" cy="176" r="38"/>'],b:[366,146]},
+  freio_t:{s:['<circle cx="84" cy="176" r="14"/>'],b:[84,176]},freio_d:{s:['<circle cx="336" cy="176" r="14"/>'],b:[336,176]},
+  trans:{s:['<path d="M84 164 L150 166"/>','<path d="M84 188 L150 184"/>','<circle cx="150" cy="176" r="10"/>'],b:[118,176]},
+  paralama:{s:['<path d="M298 152 Q336 120 376 152"/>'],b:[336,122]},garfo:{s:['<path d="M336 176 L318 72"/>'],b:[318,112]},
+  guidao:{s:['<path d="M300 62 L336 54"/>'],b:[318,46]},farol:{s:['<ellipse cx="340" cy="76" rx="10" ry="12"/>'],b:[356,62]},
+  banco:{s:['<path d="M60 108 Q66 96 100 96 L196 98 L200 112 L70 120 Q56 118 60 108 Z"/>'],b:[128,92]},
+  lanterna:{s:['<path d="M38 100 L60 98 L62 116 L40 114 Z"/>'],b:[50,92]},
+  tanque:{s:['<rect x="208" y="124" width="62" height="32" rx="8"/>'],b:[240,120]},
+  motor:{s:['<rect x="130" y="140" width="64" height="40" rx="10"/>'],b:[162,136]},
+  filtro:{s:['<rect x="198" y="106" width="24" height="topo" rx="6"/>'.replace('topo','16')],b:[210,100]},
+  bateria:{s:['<rect x="150" y="112" width="28" height="22" rx="4"/>'],b:[164,106]},
+  amort:{s:['<path d="M118 120 L98 164"/>'],b:[112,112]},
+  escape:{s:['<rect x="110" y="188" width="76" height="16" rx="7"/>','<path d="M190 192 Q216 192 216 172"/>'],b:[148,208]}},
+ trail:{
+  paralama:{s:['<path d="M300 116 Q336 78 388 98"/>'],b:[344,84]},garfo:{s:['<path d="M340 170 L300 62"/>'],b:[322,122]},
+  guidao:{s:['<path d="M284 52 L330 40"/>'],b:[307,34]},farol:{s:['<ellipse cx="322" cy="78" rx="11" ry="13"/>'],b:[342,66]},
+  tanque:{s:['<path d="M170 90 Q178 62 216 62 L262 62 Q272 82 258 96 L178 100 Z"/>'],b:[215,56]},
+  banco:{s:['<path d="M50 90 Q58 78 100 80 L168 84 L168 96 L62 102 Q46 100 50 90 Z"/>'],b:[100,76]},
+  lanterna:{s:['<path d="M30 78 L52 76 L56 96 L34 94 Z"/>'],b:[42,70]},
+  escape:{s:['<path d="M240 172 Q232 196 196 190 L150 156"/>','<path d="M152 148 L66 112 L60 126 L146 162 Z"/>'],b:[104,138]}},
+ sport:{
+  farol:{s:['<path d="M300 90 Q330 60 348 80 L338 108 Q316 112 300 90 Z"/>'],b:[336,68]},
+  guidao:{s:['<path d="M292 66 L316 74"/>'],b:[300,58]},garfo:{s:['<path d="M340 170 L316 108"/>'],b:[330,140]},
+  paralama:{s:['<path d="M240 108 Q290 102 304 128 L270 152 L238 142 Z"/>'],b:[262,106]},
+  filtro:{s:['<rect x="196" y="82" width="22" height="14" rx="4"/>'],b:[207,78]},
+  tanque:{s:['<path d="M176 76 Q192 56 236 62 L268 76 L258 98 L180 100 Z"/>'],b:[222,56]},
+  banco:{s:['<path d="M58 84 Q68 76 100 78 L170 96 L166 106 L68 102 Q52 98 58 84 Z"/>'],b:[104,72]},
+  lanterna:{s:['<path d="M28 70 L58 78 L60 96 L34 90 Z"/>'],b:[42,64]},
+  escape:{s:['<rect x="150" y="190" width="84" height="16" rx="8"/>','<path d="M250 172 Q250 192 234 196"/>'],b:[192,186]}}};
+/* GEO4 */
+/* ===== FORMATOS EXTRAS: pop, maxi (PCX/NMax), naked (Fazer/MT), custom, big (aventureira) ===== */
+Object.assign(FXT,{
+ pop:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="96" cy="180" r="22"/><circle cx="326" cy="180" r="22"/><path d="M312 80 Q298 122 284 172 L186 172"/><path d="M96 180 L152 178"/></g>',
+ custom:'<g class="fx"><path d="M10 215 L410 215" stroke-dasharray="6 8"/><circle cx="80" cy="170" r="28"/><circle cx="340" cy="170" r="28"/><path d="M292 74 L256 100 L190 116 L178 160"/><path d="M80 170 L176 172"/></g>'});
+FXT.maxi=FXT.scooter;FXT.big=FXT.trail;
+Object.assign(ZT,{
+ pop:{...ZT.scooter,
+  pneu_t:{s:['<circle cx="96" cy="180" r="34"/>'],b:[70,154]},pneu_d:{s:['<circle cx="326" cy="180" r="34"/>'],b:[352,154]},
+  freio_t:{s:['<circle cx="96" cy="180" r="12"/>'],b:[96,180]},freio_d:{s:['<circle cx="326" cy="180" r="12"/>'],b:[326,180]},
+  trans:{s:['<path d="M96 170 L152 170"/>','<path d="M96 190 L152 188"/>','<circle cx="152" cy="180" r="10"/>'],b:[124,180]},
+  paralama:{s:['<path d="M300 154 Q326 130 356 156"/>'],b:[330,128]},garfo:{s:['<path d="M326 180 L312 80"/>'],b:[312,120]},
+  guidao:{s:['<path d="M296 70 L330 62"/>'],b:[312,54]},farol:{s:['<ellipse cx="330" cy="86" rx="9" ry="11"/>'],b:[348,74]},
+  banco:{s:['<path d="M80 112 Q86 102 112 102 L186 104 L190 116 L88 122 Q76 120 80 112 Z"/>'],b:[130,98]},
+  lanterna:{s:['<path d="M58 106 L78 104 L80 120 L60 118 Z"/>'],b:[68,98]},
+  tanque:{s:['<rect x="200" y="128" width="54" height="28" rx="8"/>'],b:[226,124]},
+  motor:{s:['<rect x="134" y="146" width="60" height="36" rx="10"/>'],b:[164,142]},
+  filtro:{s:['<rect x="196" y="108" width="22" height="16" rx="6"/>'],b:[207,102]},
+  bateria:{s:['<rect x="150" y="116" width="26" height="20" rx="4"/>'],b:[163,110]},
+  amort:{s:['<path d="M130 124 L110 168"/>'],b:[124,116]},
+  escape:{s:['<rect x="118" y="192" width="70" height="14" rx="6"/>','<path d="M190 196 Q214 196 214 176"/>'],b:[152,214]}},
+ maxi:{...ZT.scooter,
+  banco:{s:['<path d="M52 98 Q60 84 108 84 L200 90 L204 106 L62 114 Q46 110 52 98 Z"/>'],b:[122,80]},
+  lanterna:{s:['<path d="M32 96 L56 94 L58 114 L34 112 Z"/>'],b:[44,88]},
+  motor:{s:['<rect x="70" y="138" width="86" height="44" rx="14"/>'],b:[113,134]},
+  filtro:{s:['<rect x="162" y="112" width="26" height="18" rx="6"/>'],b:[175,106]},
+  bateria:{s:['<rect x="132" y="116" width="26" height="20" rx="4"/>'],b:[145,110]},
+  tanque:{s:['<rect x="204" y="124" width="66" height="32" rx="10"/>'],b:[237,120]},
+  escape:{s:['<rect x="96" y="190" width="92" height="16" rx="8"/>'],b:[142,212]}},
+ naked:{
+  tanque:{s:['<path d="M168 84 Q180 58 222 60 L264 70 Q270 90 256 100 L172 102 Z"/>'],b:[218,54]},
+  banco:{s:['<path d="M62 92 Q70 82 104 84 L168 94 L166 104 L72 104 Q58 102 62 92 Z"/>'],b:[110,78]},
+  lanterna:{s:['<path d="M32 84 L62 84 L64 100 L38 98 Z"/>'],b:[46,78]},
+  farol:{s:['<path d="M316 78 L338 74 L340 96 L318 100 Z"/>'],b:[344,68]},
+  guidao:{s:['<path d="M286 62 L326 52"/>'],b:[306,46]},
+  escape:{s:['<rect x="150" y="192" width="80" height="16" rx="8"/>','<path d="M246 172 Q246 196 232 198"/>'],b:[190,214]}},
+ custom:{
+  garfo:{s:['<path d="M340 170 L292 74"/>'],b:[318,124]},guidao:{s:['<path d="M276 64 Q300 38 330 50"/>'],b:[304,36]},
+  farol:{s:['<ellipse cx="330" cy="92" rx="13" ry="13"/>'],b:[350,80]},
+  tanque:{s:['<path d="M150 98 Q160 66 204 66 Q242 66 254 90 Q246 106 160 108 Z"/>'],b:[202,60]},
+  banco:{s:['<path d="M62 106 Q70 98 100 100 L150 104 L150 114 L68 116 Q56 114 62 106 Z"/>'],b:[104,94]},
+  lanterna:{s:['<path d="M34 102 L58 100 L60 118 L38 116 Z"/>'],b:[46,94]},
+  escape:{s:['<path d="M240 172 Q240 206 176 205 L110 204"/>','<path d="M240 166 Q246 198 180 196 L112 196"/>'],b:[150,214]}},
+ big:{...ZT.trail,
+  farol:{s:['<ellipse cx="322" cy="84" rx="12" ry="15"/>','<path d="M312 64 L332 40 L338 68"/>'],b:[348,56]},
+  tanque:{s:['<path d="M164 90 Q172 58 218 58 L268 60 Q280 82 262 98 L172 102 Z"/>'],b:[216,52]},
+  banco:{s:['<path d="M46 90 Q54 76 96 78 L176 82 L176 98 L58 104 Q42 102 46 90 Z"/>'],b:[98,72]},
+  guidao:{s:['<path d="M282 48 L332 34"/>'],b:[306,28]}}});
+function mapaMoto(c,sel,nv,modelo){c=c||{};nv=nv||[];const T=tipoMoto(modelo),FX=FXT[T]||ZFX,Z=ZN.map(z=>(ZT[T]&&ZT[T][z.id])?{...z,...ZT[T][z.id]}:z);
+ return '<svg viewBox="0 0 420 232" role="img" aria-label="Mapa da moto">'+FX+Z.map(z=>{const n=c[z.id]||0;
+  return `<g class="z${n?' tem':''}${sel===z.id?' sel':''}${nv.includes(z.id)?' nova':''}" data-z="${z.id}"><title>${z.n}</title>${z.s.map(s=>s.replace('/>',' class="zs"/>')+s.replace('/>',' class="hit"/>')).join('')}${n?`<g class="bd"><circle cx="${z.b[0]}" cy="${z.b[1]}" r="9"/><text x="${z.b[0]}" y="${z.b[1]+4}">${n}</text></g>`:''}</g>`}).join('')+'</svg>'}
+const contZ=L=>{const c={};(L||[]).forEach(p=>{if(p.zona&&ZNOME[p.zona])c[p.zona]=(c[p.zona]||0)+1});return c};
+let LMO=[],moFil='ativas',moQ='',zS='';
+async function telaMo(){
+ $('#view').innerHTML=`<div class="card"><button class="btn" id="moNova" style="margin:0 0 10px">＋ Nova moto</button><input id="moQ" placeholder="Buscar placa, cliente, moto…" value="${esc(moQ)}">
+ <select id="moF" style="margin-top:8px"><option value="ativas">Motos na oficina</option><option value="todas">Todas</option><option value="entregue">Já entregues</option></select></div><div id="moL"><p class="mu">Carregando…</p></div>`;
+ $('#moF').value=moFil;$('#moNova').onclick=()=>formMo();
+ try{LMO=await rpc('pdv_os_livre_listar')||[]}catch(e){return $('#moL').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e))}</p></div>`}
+ const pend=((await idbGet('fila'))||[]).filter(x=>x.n==='pdv_os_livre_salvar'&&!x.a.p.id).map(x=>x.a.p);
+ const pinta=()=>{moQ=$('#moQ').value;moFil=$('#moF').value;const q=moQ.toLowerCase();
+  const L=LMO.filter(o=>(moFil==='todas'||(moFil==='entregue')===(o.status==='entregue'))&&(!q||[o.cliente,o.placa,o.marca,o.modelo,o.numero].join(' ').toLowerCase().includes(q)));
+  $('#moL').innerHTML=pend.map(p=>`<div class="card"><b>${esc(((p.marca||'')+' '+(p.modelo||'')).trim()||'Moto')}</b> <span class="tag" style="background:#f5a52422;color:#f5a524">⏳ aguardando internet</span><br><small class="mu">${esc(p.placa||'')} · ${esc(p.cliente)}</small></div>`).join('')+
+  (L.map(o=>{const i=stInfo(o.status);return`<div class="card" data-o="${o.id}" style="cursor:pointer"><div class="row" style="border:0;padding:0"><b>${esc(motoNome(o))}</b><span class="tag" style="background:${i[2]}22;color:${i[2]}">${i[1]}</span></div>
+  ${o.placa?`<span class="placa">${esc(o.placa)}</span><br>`:''}<small class="mu">${esc(o.cliente)} · Nº ${String(o.numero).padStart(4,'0')} · ${new Date(o.criado_em).toLocaleDateString('pt-BR')}</small></div>`}).join('')||(pend.length?'':'<p class="mu">Nenhuma moto aqui.</p>'))};
+ pinta();$('#moQ').oninput=pinta;$('#moF').onchange=pinta;
+ $('#moL').onclick=e=>{const c=e.target.closest('[data-o]');if(c){zS='';abreMo(LMO.find(o=>o.id===c.dataset.o))}}}
+function formMo(o){o=o||{};
+ sheet(`<h2>${o.id?'Editar moto':'Nova moto'}</h2>
+ <label>Nome do cliente *<input id="fmCli" value="${esc(o.cliente||'')}" autocomplete="off"></label>
+ <label>Telefone (WhatsApp)<input id="fmTel" type="tel" inputmode="tel" value="${esc(o.telefone||'')}" placeholder="(47) 99999-9999"></label>
+ <div class="g2"><label>Marca<input id="fmMar" list="dlMar" value="${esc(o.marca||'')}" placeholder="Digite: Honda…" autocomplete="off"></label><label>Modelo<input id="fmMod" list="dlMod" value="${esc(o.modelo||'')}" placeholder="Digite: CG 160…" autocomplete="off"></label></div><datalist id="dlMar">${Object.keys(MODELOS).map(m=>`<option value="${esc(m)}">`).join('')}</datalist><datalist id="dlMod"></datalist>
+ <label>Placa<input id="fmPla" value="${esc(o.placa||'')}" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase;letter-spacing:2px"></label>
+ <label>Chave (se o cliente deixou)<input id="fmChv" value="${esc(o.chave||'')}"></label>
+ <label>Problema / serviço pedido *<textarea id="fmPro" rows="2">${esc(o.problema||'')}</textarea></label>
+ <label>Observação<textarea id="fmObs" rows="2">${esc(o.observacao||'')}</textarea></label>
+ <div class="erro" id="fmErr"></div><button class="btn" id="fmOk">Salvar</button><button class="btn sec" id="fmNo" style="width:100%;margin-top:8px;padding:12px">Cancelar</button>`);
+ $('#fmNo').onclick=()=>{fecha();if(o.id)abreMo(o)};
+ const dlM=()=>{$('#dlMod').innerHTML=modelosDe($('#fmMar').value.trim()).map(m=>`<option value="${esc(m)}">`).join('')};$('#fmMar').oninput=$('#fmMar').onchange=dlM;dlM();
+ $('#fmOk').onclick=async()=>{const v=i=>$(i).value.trim(),p={id:o.id||'',cliente:v('#fmCli'),telefone:v('#fmTel'),marca:v('#fmMar'),modelo:v('#fmMod'),placa:v('#fmPla').toUpperCase(),chave:v('#fmChv'),problema:v('#fmPro'),observacao:v('#fmObs'),quem:opNome()};
+  if(!p.cliente)return $('#fmErr').textContent='Informe o nome do cliente.';if(!p.problema)return $('#fmErr').textContent='Descreva o problema da moto.';
+  $('#fmOk').disabled=true;
+  try{const m=await mut('pdv_os_livre_salvar',{p},'moto '+(p.placa||p.cliente));fecha();
+   if(m.queued)return telaMo();toast(o.id?'Moto atualizada.':'Moto cadastrada.');await telaMo();const n=LMO.find(x=>x.id===(m.r||o.id));if(n)abreMo(n)}
+  catch(e){$('#fmOk').disabled=false;$('#fmErr').textContent=e.message}}}
+async function abreMo(o){if(!o)return;
+ let d={pecas:[],fotos:[]};try{d=await rpc('pdv_os_acomp_detalhe',{p_id:o.id})||d}catch{}
+ const i=stInfo(o.status);
+ sheet(`<div class="row" style="border:0;padding:0"><h2 style="margin:0">Nº ${String(o.numero).padStart(4,'0')} · ${esc(motoNome(o))}</h2><button class="btn sec" id="moX">Fechar</button></div>
+ ${o.placa?`<span class="placa">${esc(o.placa)}</span>`:''}<p class="mu">${esc(o.cliente)}${o.telefone?' · '+esc(o.telefone):''}</p>
+ <p><b>Problema:</b> ${esc(o.problema)}</p>${o.observacao?`<p class="mu">${esc(o.observacao)}</p>`:''}${o.chave?`<p class="mu">Chave: ${esc(o.chave)}</p>`:''}
+ <h2 style="margin-top:14px">Situação</h2><div class="g2">${ST.map(x=>`<button class="btn sec stb ${x[0]===o.status?'on':''}" data-s="${x[0]}" style="width:100%;padding:12px">${x[1]}</button>`).join('')}</div>
+ <button class="btn" id="moZap">Enviar link ao cliente (WhatsApp)</button><button class="btn sec" id="moCopia" style="width:100%;margin-top:8px;padding:12px">Copiar link de acompanhamento</button>
+ <h2 style="margin-top:16px">Peças trocadas</h2>
+ ${d.pecas.map(p=>`<div class="row"><span>${+p.qtd}× ${esc(p.descricao)}${p.zona&&ZNOME[p.zona]?`<br><small>${esc(ZNOME[p.zona])}</small>`:''}</span><button class="btn sec" data-dp="${p.id}" style="padding:4px 10px">tirar</button></div>`).join('')||'<p class="mu">Nenhuma peça lançada ainda.</p>'}
+ <label style="display:block;margin-top:10px;font-weight:600">✏️ O que foi trocado? <span class="mu" style="font-weight:400">(escreva o nome, mesmo que não esteja nas sugestões)</span></label><div class="g2" style="margin-top:6px"><input id="pNome" placeholder="Ex.: Retentor da bengala, Cabo de embreagem…" autocomplete="off" autocapitalize="sentences"><input id="pQtd" type="number" inputmode="numeric" min="1" value="1" aria-label="Quantidade"></div><p class="mu" style="margin:6px 0 0;font-size:13px">Tocar no desenho é opcional: sem tocar, a peça entra só na lista (o cliente vê do mesmo jeito).</p><button class="btn" id="pAdd" style="margin-top:8px">Adicionar peça</button>
+ <h2 style="margin-top:16px">Fotos do serviço</h2><div class="fts">${d.fotos.map(f=>`<figure><img src="${esc(f.imagem)}" alt="">${f.legenda?`<small class="mu">${esc(f.legenda)}</small>`:''}<button class="btn sec" data-df="${f.id}" style="padding:2px 8px;background:#000a">✕</button></figure>`).join('')}</div>${d.fotos.length?'':'<p class="mu">Nenhuma foto ainda.</p>'}
+ <input id="fLeg" placeholder="Legenda da foto (opcional)"><label class="btn" style="display:block;text-align:center;margin-top:8px">📷 Tirar / escolher foto<input id="fArq" type="file" accept="image/*" style="display:none"></label>
+ <div class="g2" style="margin-top:16px"><button class="btn sec" id="moEd" style="width:100%;padding:12px">Editar dados</button><button class="btn sec" id="moEx" style="width:100%;padding:12px;color:var(--verm)">Excluir</button></div>`);
+ const refaz=()=>abreMo(o);
+ const pintaZ=()=>{if(!$('#mapaMo'))return;$('#mapaMo').innerHTML=mapaMoto(contZ(d.pecas),zS,null,motoNome(o));const z=ZN.find(x=>x.id===zS);
+  $('#zInfo').innerHTML=z?`Peça trocada em: <b style="color:var(--texto)">${esc(z.n)}</b> <span class="mu">(toque de novo para desmarcar)</span>`:'👆 Toque no ponto da moto onde a peça foi trocada — o cliente vê na hora.';
+  $('#zSug').innerHTML=z?z.g.map(x=>`<button type="button" data-sg="${esc(x)}">${esc(x)}</button>`).join(''):''};
+ pintaZ();
+ $('#moX').onclick=()=>{fecha();telaMo()};
+ $('#moEd').onclick=()=>formMo(o);
+ $('#moCopia').onclick=()=>navigator.clipboard.writeText(linkCli(o)).then(()=>toast('Link copiado.'),()=>prompt('Copie o link:',linkCli(o)));
+ $('#moZap').onclick=()=>{const tel=String(o.telefone||'').replace(/\D/g,''),n=tel.length>=10&&tel.length<=11?'55'+tel:tel,
+  t=`Olá, ${String(o.cliente).split(' ')[0]}! Acompanhe a revisão da sua moto em tempo real: ${linkCli(o)}`;
+  open('https://wa.me/'+n+'?text='+encodeURIComponent(t),'_blank')};
+ $('#pNome').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('#pAdd').click()}};
+ $('#pAdd').onclick=async()=>{const nome=$('#pNome').value.trim();if(!nome)return toast('Escreva o nome da peça.',1);
+  try{await mut('pdv_os_peca_add',{p_id:o.id,p_desc:nome,p_qtd:numBR($('#pQtd').value)||1,...(zS?{p_zona:zS}:{})},'peça '+nome);refaz()}catch(e){toast(semBanco(e),1)}};
+ $('#fArq').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;toast('Preparando foto…');
+  try{const img=await comprime(f);await mut('pdv_os_foto_add',{p_id:o.id,p_imagem:img,p_legenda:$('#fLeg').value.trim()},'foto');refaz()}catch(e){toast(e.message,1)}};
+ $('#sheetIn').onclick=async e=>{
+  const b=e.target.closest('[data-s]'),dp=e.target.closest('[data-dp]'),df=e.target.closest('[data-df]'),zz=e.target.closest('#mapaMo [data-z]'),sg=e.target.closest('[data-sg]');
+  if(zz){zS=zS===zz.dataset.z?'':zz.dataset.z;pintaZ()}
+  else if(sg){$('#pNome').value=sg.dataset.sg;$('#pNome').focus()}
+  else if(b){try{await mut('pdv_os_livre_status',{p_id:o.id,p_status:b.dataset.s},'situação');o.status=b.dataset.s;refaz()}catch(er){toast(er.message,1)}}
+  else if(dp){try{await mut('pdv_os_peca_del',{p_peca:dp.dataset.dp},'tirar peça');refaz()}catch(er){toast(er.message,1)}}
+  else if(df){if(!confirm('Apagar esta foto?'))return;try{await mut('pdv_os_foto_del',{p_foto:df.dataset.df},'apagar foto');refaz()}catch(er){toast(er.message,1)}}
+  else if(e.target.id==='moEx'){if(!confirm('Excluir esta moto e tudo dela (peças e fotos)? Não dá para desfazer.'))return;
+   let s;try{s=await pedeSenha(null,'Senha para excluir moto')}catch{return refaz()}
+   try{await rpc('pdv_os_excluir',{p_func:s.id,p_pin:s.pin,p_id:o.id});fecha();toast('Moto excluída.');telaMo()}catch(er){toast(er.message,1);refaz()}}}}
+function comprime(file){return new Promise((ok,no)=>{const im=new Image(),u=URL.createObjectURL(file);
+ im.onload=()=>{let w=im.width,h=im.height;const m=1100;if(Math.max(w,h)>m){const k=m/Math.max(w,h);w=Math.round(w*k);h=Math.round(h*k)}
+  const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+  let q=.75,r=c.toDataURL('image/jpeg',q);while(r.length>650000&&q>.3){q-=.1;r=c.toDataURL('image/jpeg',q)}
+  URL.revokeObjectURL(u);r.length>690000?no(new Error('Foto muito grande.')):ok(r)};
+ im.onerror=()=>no(new Error('Não consegui abrir a foto.'));im.src=u})}
+/* ---- RELATÓRIO DE SERVIÇOS ---- */
+async function telaMa(){
+ $('#view').innerHTML=barDia()+'<div id="r"><p class="mu">Carregando…</p></div>';ligaDia(telaMa);
+ let s;try{s=await pedeSenha('ver_relatorios','Senha para ver serviços')}catch{return $('#r').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaMa()">Digitar senha</button></div>'}
+ const[ini,fim]=limites(dia);let L;
+ try{L=await rpc('pdv_rel_manutencao',{p_func:s.id,p_pin:s.pin,p_ini:ini.toISOString(),p_fim:fim.toISOString()})||[]}catch(e){if(!e.net)sess=null;return $('#r').innerHTML=`<div class="card"><p class="ru">${esc(semBanco(e))}</p></div>`}
+ const tot=L.reduce((t,x)=>t+ +x.total,0),vendas=new Set(L.map(x=>x.venda_id)).size;
+ $('#r').innerHTML=`<div class="g2" style="margin-bottom:12px"><div class="card"><small>Serviços</small><b style="font-size:22px">${L.length}</b></div><div class="card"><small>Total</small><b class="ok" style="font-size:22px">${R(tot)}</b></div></div>
+ <div class="card"><h2>Serviços do dia · ${vendas} atendimento${vendas===1?'':'s'}</h2>${L.map(x=>`<div class="row"><span>${x.qtd}× ${esc(x.descricao)}<br><small>${esc(x.vendedor_nome||'')} · ${esc(x.forma_pagamento||'')} · ${hora(x.criado_em)}</small></span><b>${R(x.total)}</b></div>`).join('')||'<p class="mu">Nenhum serviço neste dia.</p>'}</div>`}
+iniciar();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
