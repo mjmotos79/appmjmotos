@@ -1,0 +1,41 @@
+APP DE VERDADE PARA ANDROID (APK) — MJ Motos
+=============================================
+Este app guarda tudo DENTRO dele. Limpar o Chrome/Safari não apaga nada do app.
+(Os dados da loja ficam no Supabase; no celular só fica o login.)
+
+CAMINHO A — SEM INSTALAR NADA (gera o APK na nuvem do GitHub, grátis)
+  1. Crie uma conta em github.com e um repositório novo (botão New). Pode ser privado.
+  2. Envie TODO o conteúdo desta pasta (Add file > Upload files), incluindo a pasta escondida .github.
+     Se a aba Actions não mostrar "Gerar APK": Add file > Create new file, nome  .github/workflows/gerar-apk.yml  e cole o conteúdo do arquivo gerar-apk.yml.
+  3. Aba Actions > Gerar APK > Run workflow. Espere uns 5 a 10 minutos.
+  4. Abra a execução que ficou verde e baixe o arquivo MJ-Motos-APK (no fim da página, em Artifacts). Dentro está o app-debug.apk.
+  5. Se der erro vermelho, mande o texto do erro para o Claude que ele ajusta.
+
+CAMINHO B — NO SEU COMPUTADOR (precisa instalar coisas, uma vez só):
+  1. Node.js (LTS)  ->  nodejs.org
+  2. Android Studio ->  developer.android.com/studio
+
+ANTES DE TUDO: rode ATUALIZAR-APP.sql no Supabase (SQL Editor) — libera a entrada pela placa.
+
+PASSO A PASSO DO CAMINHO B:
+  1. (feito acima)
+  2. Dê dois cliques em MONTAR-APP.bat (esta pasta). Ele copia o site e abre o Android Studio.
+  3. No Android Studio espere carregar e vá em: Build > Build Bundle(s) / APK(s) > Build APK(s).
+  4. Ao terminar, clique em "locate": o arquivo app-debug.apk é o app.
+  5. Mande o .apk pelo WhatsApp/Drive. No celular: abrir o arquivo e permitir "instalar de fontes desconhecidas".
+
+Quando eu mudar o site, rode MONTAR-APP.bat de novo e gere um APK novo.
+
+iPHONE: fica como está, com o atalho na tela inicial (Safari > Compartilhar > Adicionar à Tela de Início). Instalar arquivo direto não dá: Precisa de um Mac com Xcode e conta Apple Developer (paga, ~US$ 99 por ano)
+para publicar na App Store ou no TestFlight.
+
+
+ASSINATURA FIXA (para o cliente atualizar por cima, sem desinstalar)
+====================================================================
+1. No GitHub do site: Settings > Secrets and variables > Actions > New repository secret.
+2. Crie os 4 secrets (nomes e valores estao no arquivo SECRETS-GITHUB.txt, que NAO faz parte do site):
+   KEYSTORE_BASE64, KEYSTORE_PASSWORD, KEY_ALIAS, KEY_PASSWORD
+3. Rode Actions > Gerar APK. Se aparecer o aviso amarelo "Sem os secrets de assinatura", algum secret esta faltando ou com nome errado.
+4. A PRIMEIRA vez que o cliente trocar para o app assinado, precisa desinstalar o antigo (a chave muda uma vez). Dai em diante, so baixar e instalar por cima.
+5. Guarde o arquivo mjmotos.keystore e o SECRETS-GITHUB.txt em lugar seguro. Se perder, a chave nao tem como ser refeita e todo mundo precisa desinstalar de novo.
+Cada build agora sobe o numero da versao sozinho (exigido pelo Android para atualizar por cima).

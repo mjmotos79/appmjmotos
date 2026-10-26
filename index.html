@@ -122,12 +122,28 @@ header .nome small{display:block;font-family:var(--corpo);font-style:normal;font
 .zt{display:block;color:var(--suave);font-size:12px;font-weight:400}
 .sg{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .sg button{background:#0a0a0c;border:1px solid var(--linha);color:var(--texto);border-radius:99px;padding:6px 12px;font:500 13px var(--corpo)}
+
+/* ABAS + PROMOÇÕES */
+main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+#nav{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:rgba(10,10,12,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--linha);padding:6px 10px calc(6px + env(safe-area-inset-bottom))}
+#nav button{flex:1;max-width:260px;margin:0 auto;background:none;border:0;color:var(--suave);font:500 12px var(--corpo);padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
+#nav button .ico{font-size:24px}#nav button.on{color:#fff}#nav button.on .ico{color:var(--verm)}
+#nav i{position:absolute;top:0;left:calc(50% + 8px);background:var(--verm);color:#fff;font:600 11px var(--corpo);font-style:normal;border-radius:99px;padding:1px 6px}
+#nav i:empty{display:none}
+.pr{border-color:color-mix(in srgb,var(--verm) 40%,#2a2a30)}
+.pr .off{position:absolute;top:14px;right:14px;background:var(--verm);color:#fff;font:700 14px var(--corpo);border-radius:8px;padding:3px 9px}
+.pr h3{margin:0 70px 2px 0;font-size:19px;font-weight:600}.pr p{margin:0;color:var(--suave);font-size:14px}
+.pr .de{color:var(--suave);text-decoration:line-through;font-size:14px;margin-top:10px}
+.pr .por{font:italic 800 34px var(--tit);color:var(--ok);line-height:1.05}
+.pr .ate{display:inline-block;margin-top:8px;font-size:12px;color:var(--alerta);background:rgba(245,165,36,.12);border-radius:99px;padding:3px 10px}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
 <div id="aviso" role="status"></div>
 <main id="app"><p class="vazio" style="justify-content:center;padding:60px 0">Carregando…</p></main>
+<main id="promo" hidden></main>
+<nav id="nav"></nav>
 <div id="zoom"><img alt="Foto do serviço"></div>
 <script>
 /* O QUE É ESTE ARQUIVO: a página que o cliente abre pelo link do WhatsApp.
@@ -400,6 +416,30 @@ function telaPlaca(msg) {
   };
 }
 if (token) { atualiza(); setInterval(() => { if (!document.hidden) atualiza(); }, 5000); setInterval(pintaRodape, 20000); } else telaPlaca();
+
+/* ===== ABAS: Minha moto | Promoções ===== */
+IC.tag='<path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>';
+const BRL = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
+let aba = 'moto', PR = null;
+function pintaNav() {
+  $('#nav').innerHTML = `<button class="${aba === 'moto' ? 'on' : ''}" onclick="abre('moto')">${ic('moto')}Minha moto</button>
+   <button class="${aba === 'promo' ? 'on' : ''}" onclick="abre('promo')">${ic('tag')}Promoções<i>${PR && PR.length ? PR.length : ''}</i></button>`;
+}
+function abre(a) { aba = a; $('#app').hidden = a !== 'moto'; $('#promo').hidden = a !== 'promo'; pintaNav(); window.scrollTo(0, 0); if (a === 'promo') promos(); }
+function pintaPromos() {
+  const L = PR || [];
+  $('#promo').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Promoções<small>Ofertas da Matheus Motos</small></div></header>` +
+    (L.length ? L.map(p => { const off = p.preco_de > p.preco_por ? Math.round((1 - p.preco_por / p.preco_de) * 100) : 0;
+      return `<section class="card pr entra">${off ? `<span class="off">-${off}%</span>` : ''}<h3>${esc(p.nome)}</h3>${p.descricao ? `<p>${esc(p.descricao)}</p>` : ''}
+        ${p.preco_de ? `<div class="de">de ${BRL(p.preco_de)}</div>` : ''}<div class="por">${BRL(p.preco_por)}</div>
+        ${p.ate ? `<span class="ate">Válido até ${p.ate.split('-').reverse().slice(0, 2).join('/')}</span>` : ''}</section>`; }).join('')
+    : `<section class="card"><p class="vazio"><span class="em">${ic('tag')}</span>Nenhuma promoção no momento. Volte logo, sempre tem novidade!</p></section>`);
+}
+async function promos() {
+  try { PR = await rpc('pdv_promocoes_listar', {}); } catch (e) { if (!PR) { $('#promo').innerHTML = `<section class="card"><p class="vazio">${/function|schema cache|could not find/i.test(e.message) ? 'Promoções ainda não liberadas: falta rodar o PROMOCOES.sql no Supabase.' : 'Sem conexão. Tente de novo.'}</p></section>`; } return; }
+  pintaNav(); if (aba === 'promo') pintaPromos();
+}
+pintaNav(); promos(); setInterval(() => { if (!document.hidden) promos(); }, 60000);
 /* ===== APP INSTALÁVEL (cliente) =====
    Guarda o link da moto no celular e deixa instalar na tela inicial. O manifesto é montado na hora com o token do cliente,
    assim o app instalado (inclusive no iPhone) já abre direto na moto dele. */

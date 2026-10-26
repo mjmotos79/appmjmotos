@@ -1,0 +1,91 @@
+# Gera o APK do app MJ Motos na nuvem do GitHub (gratis). Rode em: aba Actions > Gerar APK > Run workflow.
+# Com os 4 secrets de assinatura cadastrados (veja SECRETS-GITHUB.txt), o app e assinado sempre com a MESMA chave
+# e o cliente atualiza por cima, sem desinstalar. Sem os secrets, gera um APK de teste (assinatura muda a cada build).
+name: Gerar APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+permissions:
+  contents: write
+env:
+  KS_B64: ${{ secrets.KEYSTORE_BASE64 }}
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Montar o app
+        working-directory: app-android
+        run: |
+          mkdir -p www
+          rsync -a --exclude app-android --exclude downloads --exclude instalar.html --exclude node_modules --exclude '*.sql' --exclude '*.zip' --exclude .github --exclude .git ../ www/
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+          npx cap sync android
+      - name: Numero da versao (sobe a cada build, necessario para instalar por cima)
+        working-directory: app-android/android/app
+        run: |
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/" build.gradle
+          sed -i -E "s/versionName \"[^\"]*\"/versionName \"1.${{ github.run_number }}\"/" build.gradle
+          grep -nE "versionCode|versionName" build.gradle
+      - name: Preparar a assinatura fixa
+        if: env.KS_B64 != ''
+        env:
+          KS_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASS: ${{ secrets.KEY_PASSWORD }}
+          KEY_AL: ${{ secrets.KEY_ALIAS }}
+        run: |
+          echo "$KS_B64" | base64 -d > "$GITHUB_WORKSPACE/app-android/mjmotos.keystore"
+          cat >> app-android/android/app/build.gradle <<GRADLE
+
+          android {
+              signingConfigs {
+                  mjmotos {
+                      storeFile file("$GITHUB_WORKSPACE/app-android/mjmotos.keystore")
+                      storePassword "$KS_PASS"
+                      keyAlias "$KEY_AL"
+                      keyPassword "$KEY_PASS"
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.mjmotos
+                  }
+              }
+          }
+          GRADLE
+      - name: Gerar o APK assinado (fixo)
+        if: env.KS_B64 != ''
+        working-directory: app-android/android
+        run: ./gradlew assembleRelease
+      - name: Gerar o APK de teste (sem assinatura fixa)
+        if: env.KS_B64 == ''
+        working-directory: app-android/android
+        run: |
+          echo "::warning::Sem os secrets de assinatura: o APK sera de teste e o cliente precisara desinstalar o antigo."
+          ./gradlew assembleDebug
+      - name: Separar o APK pronto
+        run: |
+          mkdir -p saida
+          if [ -n "$KS_B64" ]; then cp app-android/android/app/build/outputs/apk/release/app-release.apk saida/MJ-Motos.apk
+          else cp app-android/android/app/build/outputs/apk/debug/app-debug.apk saida/MJ-Motos.apk; fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: MJ-Motos-APK
+          path: saida/MJ-Motos.apk
+      - name: Publicar o APK no site (link de download do cliente)
+        run: |
+          mkdir -p downloads
+          cp saida/MJ-Motos.apk downloads/MJ-Motos.apk
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add downloads/MJ-Motos.apk
+          git diff --cached --quiet || (git commit -m "Atualiza o APK do site [skip ci]" && git push)

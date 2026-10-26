@@ -1,7 +1,7 @@
 /* O QUE É: o "porteiro" do app do CLIENTE. Guarda a tela, a logo e as fontes para o app abrir rápido.
    Os dados da moto (Supabase) nunca ficam guardados: o cliente sempre vê a situação de agora.
    Ao publicar versão nova, troque o número em V. */
-const V='mjm-cli-v1';
+const V='mjm-cli-v2';
 const SHELL=['./','./index.html','./manifest-cliente.json','./logo.png','./icone-192.png','./icone-512.png'];
 self.addEventListener('install',e=>{e.waitUntil((async()=>{const c=await caches.open(V);
  await Promise.all(SHELL.map(u=>c.add(u).catch(()=>{})));self.skipWaiting()})())});
@@ -9,7 +9,7 @@ self.addEventListener('activate',e=>e.waitUntil((async()=>{
  for(const k of await caches.keys())if(k!==V)await caches.delete(k);await self.clients.claim()})()));
 self.addEventListener('fetch',e=>{
  const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
- if(u.hostname.endsWith('supabase.co')||u.pathname.includes('/celular/'))return;
+ if(u.hostname.endsWith('supabase.co')||u.pathname.includes('/celular/')||u.pathname.includes('/downloads/')||u.pathname.endsWith('/instalar.html'))return;
  const meu=u.origin===location.origin;
  if(!meu&&!/(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(u.hostname))return;
  e.respondWith((async()=>{const c=await caches.open(V);

@@ -95,7 +95,7 @@ const dataBR=d=>String(d).split('-').reverse().join('/');
 const hora=d=>new Date(d).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 const mk=t=>supabase.createClient(URL_,KEY,{auth:{persistSession:false},global:{headers:t?{'x-device-token':t}:{}}});
 let db,F=[],op=localStorage.getItem('mm_cel_op')||'',sess=null,tab='ini',dia=isoHoje(),CFG={};
-const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços']];
+const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços'],['pr','🏷️','Promoções']];
 const GASTOS_NOMES=['Almoço / lanche','Combustível','Peça / material','Ferramenta','Limpeza','Água / luz / internet','Transporte / frete','Vale / adiantamento','Outros'];
 const FORMAS_REEMB=['Dinheiro','Pix','Estorno no cartão','Outro'];
 function toast(m,e){const t=$('#toast');t.textContent=m;t.className=e?'err':'';clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add('oculto'),e?5000:2500)}
@@ -180,6 +180,37 @@ function pedeSenha(perm,titulo){return new Promise((ok,no)=>{
    const rec=await idbGet(pk);
    if(h&&rec&&rec.h===h&&rec.ok.includes(perm||'')){sess={id,pin,nome,offline:true};fecha();ok(sess)}
    else $('#sErr').textContent='Sem internet: só entra offline quem já entrou antes neste celular, com a mesma senha.'}}})}
+
+/* ---- PROMOÇÕES: o que você cadastra aqui aparece na aba Promoções do app do cliente ---- */
+let PRL=[];
+async function telaPr(){
+ $('#view').innerHTML='<p class="mu">Carregando…</p>';
+ let s;try{s=await pedeSenha(null,'Senha para ver as promoções')}catch{return $('#view').innerHTML='<div class="card"><p class="mu">Precisa da senha.</p><button class="btn" onclick="telaPr()">Digitar senha</button></div>'}
+ try{PRL=await rpc('pdv_promocao_adm_listar',{p_func:s.id,p_pin:s.pin})||[]}
+ catch(e){if(!e.net)sess=null;return $('#view').innerHTML=`<div class="card"><p class="ru">${esc(/function|schema cache|could not find/i.test(e.message)?'Falta rodar o PROMOCOES.sql no Supabase.':e.message)}</p><button class="btn" onclick="telaPr()">Tentar de novo</button></div>`}
+ const hoje=isoHoje();
+ $('#view').innerHTML=`<button class="btn" id="prN" style="margin:0 0 12px">＋ Nova promoção</button>`+(PRL.length?PRL.map(p=>{const venc=p.ate&&p.ate<hoje;
+  return `<div class="card" data-p="${p.id}" style="cursor:pointer"><div class="row" style="padding:0;border:0"><b style="min-width:0;overflow-wrap:anywhere">${esc(p.nome)}</b><b class="ok">${R(p.preco_por)}</b></div>
+  <small class="mu">${p.preco_de?'de '+R(p.preco_de)+' · ':''}${p.ate?'até '+p.ate.split('-').reverse().join('/'):'sem data final'} · <span class="${!p.ativa||venc?'ru':'ok'}">${!p.ativa?'Desligada':venc?'Vencida':'No ar'}</span></small></div>`}).join(''):'<div class="card"><p class="mu">Nenhuma promoção ainda. Toque em “Nova promoção”.</p></div>');
+ $('#prN').onclick=()=>prForm(null);
+ $('#view').onclick=e=>{const c=e.target.closest('[data-p]');if(c)prForm(PRL.find(x=>x.id===c.dataset.p))}}
+function prForm(p){
+ const v=k=>p&&p[k]!=null?esc(p[k]):'';
+ sheet(`<h2>${p?'Editar promoção':'Nova promoção'}</h2>
+ <label>Produto<input id="pN" value="${v('nome')}" placeholder="Ex.: Kit relação CG 160"></label>
+ <label>Detalhes (opcional)<input id="pD" value="${v('descricao')}" placeholder="Ex.: instalação grátis"></label>
+ <div class="g2"><label>Preço normal<input id="pDe" inputmode="decimal" value="${p&&p.preco_de!=null?String(p.preco_de).replace('.',','):''}" placeholder="0,00"></label>
+ <label>Preço da promoção<input id="pPo" inputmode="decimal" value="${p?String(p.preco_por).replace('.',','):''}" placeholder="0,00"></label></div>
+ <label>Vale até (opcional)<input id="pAte" type="date" value="${v('ate')}"></label>
+ <label style="display:flex;gap:10px;align-items:center"><input id="pAt" type="checkbox" style="width:auto;margin:0" ${!p||p.ativa?'checked':''}> Mostrar no app do cliente</label>
+ <div id="pErr" class="ru" style="min-height:1.3em;margin-top:8px"></div>
+ <button class="btn" id="pOk">Salvar</button>${p?'<button class="btn sec" id="pEx" style="width:100%;margin-top:10px;color:var(--verm)">Excluir promoção</button>':''}`);
+ const num=x=>{const n=parseFloat(String(x).replace(/\./g,'').replace(',','.'));return isNaN(n)?null:n};
+ $('#pOk').onclick=async()=>{const b=$('#pOk');b.disabled=true;
+  try{const s=await pedeSenha(null,'Senha');await rpc('pdv_promocao_salvar',{p_func:s.id,p_pin:s.pin,p_id:p?p.id:null,p_nome:$('#pN').value,p_descricao:$('#pD').value,p_de:num($('#pDe').value),p_por:num($('#pPo').value),p_ate:$('#pAte').value||null,p_ativa:$('#pAt').checked});
+   fecha();toast('Promoção salva.');telaPr()}catch(e){b.disabled=false;$('#pErr').textContent=e.message}};
+ if(p)$('#pEx').onclick=async()=>{if(!confirm('Excluir esta promoção?'))return;
+  try{const s=await pedeSenha(null,'Senha');await rpc('pdv_promocao_excluir',{p_func:s.id,p_pin:s.pin,p_id:p.id});fecha();toast('Excluída.');telaPr()}catch(e){$('#pErr').textContent=e.message}}}
 /* ---- ESTOQUE (só leitura: o PDV atualiza a cada venda/entrada; esta aba sincroniza sozinha a cada 20 s) ---- */
 let ES={q:'',sit:'',cat:'',ord:'nome',L:[],max:80,t:0,busy:false,op:new Set()};
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
@@ -234,7 +265,7 @@ function esLista(){
  else h=`<div class="card">${l.slice(0,ES.max).map(lin).join('')}</div>`+(l.length>ES.max?`<button class="btn sec" id="esM" style="width:100%">Mostrar mais (${l.length-ES.max})</button>`:'');
  $('#esL').innerHTML=h}
 function ir(t){tab=t;$('#nav').innerHTML=TABS.map(x=>`<button class="${x[0]===t?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('');
- ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa}[t])()}
+ ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa,pr:telaPr}[t])()}
 const barDia=()=>`<div class="card"><label style="margin:0">Dia<input type="date" id="dd" value="${dia}"></label></div>`;
 const ligaDia=f=>{$('#dd').onchange=e=>{dia=e.target.value||isoHoje();f()}};
 const limites=d=>{const x=new Date(d+'T12:00:00');return[new Date(x.getFullYear(),x.getMonth(),x.getDate()),new Date(x.getFullYear(),x.getMonth(),x.getDate()+1)]};

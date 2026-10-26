@@ -1,6 +1,6 @@
 /* O QUE É: o "porteiro" do app. Guarda no celular os arquivos do app (tela, logo, fontes, biblioteca do Supabase).
    PARA QUE SERVE: o app abre mesmo sem internet. Quando você publicar uma versão nova, troque o número em V para o celular atualizar. */
-const V='mjm-v6';
+const V='mjm-v7';
 const SHELL=['./','./index.html','./manifest.json','./logo.png','./icone-192.png','./icone-512.png'];
 const EXT=['https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
  'https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:ital,wght@1,700;1,800&display=swap'];

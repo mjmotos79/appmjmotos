@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0c">
+<meta name="robots" content="noindex">
+<title>Baixe o app — MJ Motos</title>
+<link rel="icon" href="icone-192.png">
+<style>
+:root{--t:#f5f5f7;--s:#a0a0aa;--l:#2a2a30;--v:#e1101a;--ok:#2fbf71;--al:#f5a524}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:#0a0a0c;color:var(--t);font:16px/1.45 system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:calc(20px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom))}
+.top{text-align:center;margin-bottom:18px}.top img{width:84px;height:84px;border-radius:50%;object-fit:contain}
+h1{margin:10px 0 2px;font-size:26px;font-style:italic;text-transform:uppercase;letter-spacing:.5px}.top p{margin:0;color:var(--s)}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tabs button{padding:14px 8px;border-radius:14px;border:2px solid var(--l);background:#16161a;color:var(--s);font:600 17px inherit;font-family:inherit}
+.tabs button.on{border-color:var(--v);color:#fff;background:rgba(225,16,26,.14)}
+.card{background:#16161a;border:1px solid var(--l);border-radius:18px;padding:18px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:19px}
+.btn{display:block;width:100%;text-align:center;text-decoration:none;border:0;border-radius:12px;padding:15px;background:var(--v);color:#fff;font:600 17px inherit;font-family:inherit}
+.btn.sec{background:transparent;border:1px solid var(--l);color:var(--t);margin-top:10px}
+.estado{display:flex;gap:12px;align-items:center;padding:14px;border-radius:14px;background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.4);margin-bottom:14px}
+.estado b{display:block}.estado span{color:#cfd;font-size:14px}
+.spin{width:22px;height:22px;border:3px solid rgba(47,191,113,.3);border-top-color:var(--ok);border-radius:50%;animation:g 1s linear infinite;flex:none}
+@keyframes g{to{transform:rotate(360deg)}}
+ol{margin:0;padding:0;list-style:none;counter-reset:p}
+ol li{counter-increment:p;position:relative;padding:0 0 14px 44px}ol li:last-child{padding-bottom:0}
+ol li::before{content:counter(p);position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50%;background:var(--v);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
+ol li b{display:block}ol li span{color:var(--s);font-size:14px}
+.av{background:rgba(245,165,36,.1);border:1px solid rgba(245,165,36,.4);border-radius:14px;padding:12px 14px;font-size:14px;color:#f3dfb8;margin-bottom:14px}
+.ic{display:inline-block;width:1.2em;height:1.2em;vertical-align:-.25em}
+[hidden]{display:none!important}
+small{color:var(--s)}
+</style>
+</head>
+<body>
+<main>
+ <div class="top"><img src="logo.png" alt=""><h1>MJ Motos</h1><p>Acompanhe sua moto pelo celular</p></div>
+ <div class="tabs"><button id="tA" onclick="escolhe('a',true)">Android</button><button id="tI" onclick="escolhe('i',true)">iPhone</button></div>
+
+ <section id="pA" hidden>
+  <div class="estado" id="est"><div class="spin"></div><div><b>Baixando o app…</b><span>Em alguns segundos o download começa sozinho.</span></div></div>
+  <a class="btn" id="bx" href="downloads/MJ-Motos.apk" download="MJ-Motos.apk">Baixar o app de novo</a>
+  <div class="av" style="margin-top:14px">Abriu este link dentro do WhatsApp ou Instagram e não baixou? Toque nos <b>três pontinhos ⋮</b> e escolha <b>Abrir no Chrome</b>.</div>
+  <div class="card"><h2>Como instalar (leva 1 minuto)</h2>
+   <ol>
+    <li><b>Abra o arquivo baixado</b><span>Toque na notificação “MJ-Motos.apk” ou procure em <i>Arquivos › Downloads</i>.</span></li>
+    <li><b>Libere a instalação</b><span>O Android vai avisar que é de fonte desconhecida. Toque em <b>Configurações</b> e ative <b>Permitir desta fonte</b>. Depois volte.</span></li>
+    <li><b>Toque em Instalar</b><span>Se o Play Protect avisar, toque em <b>Mais detalhes › Instalar mesmo assim</b>. O app é seguro, só não está na Play Store.</span></li>
+    <li><b>Abra o app e digite a placa</b><span>Pronto! Você vê o andamento da moto e as promoções da loja.</span></li>
+   </ol></div>
+ </section>
+
+ <section id="pI" hidden>
+  <div class="card"><h2>Ver minha moto agora</h2>
+   <a class="btn" href="index.html">Abrir o acompanhamento</a></div>
+  <div class="av" id="avS" hidden>Você está em outro navegador. No iPhone, abra este link no <b>Safari</b> para conseguir colocar na tela inicial.</div>
+  <div class="card"><h2>Colocar o app na tela inicial</h2>
+   <ol>
+    <li><b>Abra no Safari</b><span>Entre em <a href="index.html" style="color:var(--t)">o acompanhamento</a> e digite a placa da moto.</span></li>
+    <li><b>Toque em Compartilhar</b><span>É o quadradinho com a seta pra cima <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4M5 11v9h14v-9"/></svg>, embaixo da tela.</span></li>
+    <li><b>Adicionar à Tela de Início</b><span>Role o menu para baixo e toque nessa opção, depois em <b>Adicionar</b>.</span></li>
+    <li><b>Pronto</b><span>O ícone “Minha moto” fica na tela inicial e abre direto na sua moto.</span></li>
+   </ol></div>
+ </section>
+
+ <p style="text-align:center"><small>Seus dados ficam guardados com a loja. Dúvida? Fale com a MJ Motos.</small></p>
+</main>
+<script>
+const ua=navigator.userAgent, ios=/iPad|iPhone|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1), and=/Android/i.test(ua);
+const jaApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+let baixou=false;
+function baixa(){const a=document.createElement('a');a.href='downloads/MJ-Motos.apk';a.download='MJ-Motos.apk';document.body.appendChild(a);a.click();a.remove();baixou=true;
+ document.getElementById('est').innerHTML='<div style="font-size:26px">✅</div><div><b>Download iniciado</b><span>Veja a notificação de download e siga os passos abaixo.</span></div>'}
+function escolhe(o,manual){
+ document.getElementById('pA').hidden=o!=='a';document.getElementById('pI').hidden=o!=='i';
+ document.getElementById('tA').classList.toggle('on',o==='a');document.getElementById('tI').classList.toggle('on',o==='i');
+ if(o==='a'&&and&&!baixou)setTimeout(baixa,manual?200:1200);
+ if(o==='a'&&!and){document.getElementById('est').hidden=true;document.getElementById('bx').textContent='Baixar o app (Android)'}}
+document.getElementById('avS').hidden=!(ios&&/CriOS|FxiOS|EdgiOS|Instagram|FBAN|FBAV/.test(ua));
+if(jaApp)location.replace('index.html');
+else escolhe(ios?'i':'a',false);
+</script>
+</body>
+</html>
