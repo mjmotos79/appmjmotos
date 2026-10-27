@@ -105,9 +105,11 @@ const mk=t=>supabase.createClient(URL_,KEY,{auth:{persistSession:false},global:{
 let db,F=[],op=localStorage.getItem('mm_cel_op')||'',sess=null,tab='ini',dia=isoHoje(),CFG={};
 const TABS=[['ini','📊','Relatório'],['mo','🏍️','Motos'],['es','📦','Estoque'],['gas','💸','Gastos'],['cx','🧾','Caixa'],['re','↩️','Reembolso'],['ma','🔧','Serviços'],['pr','🏷️','Promoções'],['pt','⏱️','Ponto'],['eq','👥','Equipe']];
 /* perfil: admin = tudo; mecanico = Serviços + Ponto; funcionario = só Ponto. Sem perfil cadastrado = como era antes (tudo) + Ponto. */
-const PERFIL_TABS={mecanico:['ma','pt'],funcionario:['pt']};
-function perfilAtual(){const f=F.find(x=>x.id===op);return f&&f.perfil||''}
-function tabsVisiveis(){const pf=perfilAtual();const ok=PERFIL_TABS[pf];return TABS.filter(x=>ok?ok.includes(x[0]):(pf==='admin'||!pf)&&(x[0]!=='eq'||pf==='admin'))}
+const PERFIL_TABS={mecanico:['mo','pt'],funcionario:['pt']};
+/* QUEM VÊ SÓ "SERVIÇOS" E "PONTO": primeiro nome de quem é mecânico. Para incluir/tirar alguém, mexa só nesta linha. (Se o perfil da pessoa estiver preenchido no banco, vale o do banco.) */
+const SO_SERVICOS=['alan','bento'];
+function perfilAtual(){const f=F.find(x=>x.id===op);if(!f)return '';return f.perfil||(SO_SERVICOS.includes(semAc(f.nome).trim().split(/\s+/)[0])?'mecanico':'')}
+function tabsVisiveis(){const pf=perfilAtual();const ok=PERFIL_TABS[pf];return TABS.filter(x=>ok?ok.includes(x[0]):(pf==='admin'||!pf)&&(x[0]!=='eq'||pf==='admin')).map(x=>pf==='mecanico'&&x[0]==='mo'?['mo','🔧','Serviços']:x)}
 const GASTOS_NOMES=['Almoço / lanche','Combustível','Peça / material','Ferramenta','Limpeza','Água / luz / internet','Transporte / frete','Vale / adiantamento','Outros'];
 const FORMAS_REEMB=['Dinheiro','Pix','Estorno no cartão','Outro'];
 function toast(m,e){const t=$('#toast');t.textContent=m;t.className=e?'err':'';clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.add('oculto'),e?5000:2500)}
@@ -180,13 +182,15 @@ function escolherOp(){sheet(`<h2>Quem está usando?</h2>${F.map(f=>`<button clas
 function pedeSenha(perm,titulo){return new Promise((ok,no)=>{
  if(sess)return ok(sess);
  sheet(`<h2>${titulo||'Área restrita'}</h2><label>Quem é você?<select id="sId">${F.map(f=>`<option value="${f.id}" ${f.id===op?'selected':''}>${esc(f.nome)}</option>`).join('')}</select></label><label>Senha<input id="sPin" type="password" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"></label><div class="erro" id="sErr"></div><button class="btn" id="sOk">Entrar</button><button class="btn sec" id="sNo" style="width:100%;margin-top:8px;padding:12px">Cancelar</button>`);
- $('#sNo').onclick=()=>{fecha();no()};
+ $('#sId').onchange=e=>{op=e.target.value;localStorage.setItem('mm_cel_op',op);sess=null;pareVigia();desenha();pintaNav()};/* escolher o nome já troca o perfil: Alan/Bento ficam só com Serviços e Ponto */
+ const volta=()=>{if(!tabsVisiveis().some(x=>x[0]===tab))setTimeout(()=>ir(tab),0)};
+ $('#sNo').onclick=()=>{fecha();no();volta()};
  $('#sOk').onclick=async()=>{const id=$('#sId').value,pin=$('#sPin').value;
   const nome=(F.find(f=>f.id===id)||{}).nome,h=await h256(id+':'+pin),pk='pin:'+id;
   try{const r=await rpc('verificar_acesso',{p_func:id,p_pin:pin,p_perm:perm||null});
    if(!r.ok){$('#sPin').value='';return $('#sErr').textContent=r.msg||'Senha incorreta'}
    const rec=(await idbGet(pk))||{};const oks=new Set(rec.h===h?rec.ok:[]);oks.add(perm||'');idbSet(pk,{h,ok:[...oks]});
-   sess={id,pin,nome};fecha();ok(sess)}
+   sess={id,pin,nome};if(op!==id){op=id;localStorage.setItem('mm_cel_op',op);desenha();pintaNav()}fecha();ok(sess)}
   catch(e){if(!e.net)return $('#sErr').textContent=e.message;
    /* sem internet: só entra quem já entrou com essa mesma senha neste celular */
    const rec=await idbGet(pk);
@@ -343,7 +347,8 @@ function esLista(){
    return `<details class="card" data-g="${esc(k)}" ${ES.op.has(k)?'open':''}><summary style="display:flex;justify-content:space-between;gap:8px;font-weight:600;cursor:pointer"><span>${esc(k)} <span class="mu">· ${a.length}</span></span>${al?`<span class="al">⚠ ${al}</span>`:''}</summary>${a.map(lin).join('')}</details>`}).join('')}
  else h=`<div class="card">${l.slice(0,ES.max).map(lin).join('')}</div>`+(l.length>ES.max?`<button class="btn sec" id="esM" style="width:100%">Mostrar mais (${l.length-ES.max})</button>`:'');
  $('#esL').innerHTML=h}
-function ir(t){const vis=tabsVisiveis();if(!vis.some(x=>x[0]===t))t=vis[0][0];tab=t;$('#nav').innerHTML=vis.map(x=>`<button class="${x[0]===t?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('');
+function pintaNav(){const vis=tabsVisiveis();$('#nav').innerHTML=vis.map(x=>`<button class="${x[0]===tab?'on':''}" onclick="ir('${x[0]}')"><b>${x[1]}</b>${x[2]}</button>`).join('')}
+function ir(t){const vis=tabsVisiveis();if(!vis.some(x=>x[0]===t))t=vis[0][0];tab=t;pintaNav();
  ({ini:telaIni,mo:telaMo,es:telaEs,gas:telaGas,cx:telaCx,re:telaRe,ma:telaMa,pr:telaPr,pt:telaPt,eq:telaEq}[t])()}
 const barDia=()=>`<div class="card"><label style="margin:0">Dia<input type="date" id="dd" value="${dia}"></label></div>`;
 const ligaDia=f=>{$('#dd').onchange=e=>{dia=e.target.value||isoHoje();f()}};
