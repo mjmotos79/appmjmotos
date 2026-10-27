@@ -1,6 +1,10 @@
 {
-  "appId": "br.com.mjmotos.app",
-  "appName": "MJ Motos",
-  "webDir": "www",
-  "server": { "androidScheme": "https" }
+	"appId": "br.com.mjmotos.app",
+	"appName": "MJ Motos",
+	"webDir": "www",
+	"server": {
+		"url": "https://mjmotos.netlify.app",
+		"androidScheme": "https",
+		"errorPath": "index.html"
+	}
 }
