@@ -19,7 +19,7 @@
 <meta name="apple-mobile-web-app-title" content="Minha moto">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="robots" content="noindex">
-<title>Acompanhe sua revisão — Matheus Motos</title>
+<title>Acompanhe sua revisão — MJ Motos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:ital,wght@1,700;1,800&display=swap" rel="stylesheet">
 <style>
@@ -135,7 +135,7 @@ header .nome small{display:block;font-family:var(--corpo);font-style:normal;font
 main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 #nav{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;background:rgba(10,10,12,.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--linha);padding:6px 10px calc(6px + env(safe-area-inset-bottom))}
 #nav button{flex:1;max-width:260px;margin:0 auto;background:none;border:0;color:var(--suave);font:500 12px var(--corpo);padding:6px 0;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative}
-#nav button .ico{font-size:24px}#nav button.on{color:#fff}#nav button.on .ico{color:var(--verm)}
+#nav button .ico{font-size:26px;transition:transform .2s,filter .2s}#nav button.on{color:#fff}#nav button.on .ico{color:var(--verm);transform:scale(1.08);filter:drop-shadow(0 0 6px rgba(225,16,26,.55))}
 #nav i{position:absolute;top:0;left:calc(50% + 8px);background:var(--verm);color:#fff;font:600 11px var(--corpo);font-style:normal;border-radius:99px;padding:1px 6px}
 #nav i:empty{display:none}
 .pr{border-color:color-mix(in srgb,var(--verm) 40%,#2a2a30)}
@@ -210,6 +210,27 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 @keyframes mjRua{to{background-position:-160px 0}}
 #mjs.logo .fav,#mjs.logo .rua{opacity:.2}
 #mjs.curta .fav,#mjs.curta .rua{display:none}
+
+/* ===== Consulta de peça (chat) e Orçamento ===== */
+.chat{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.bol{max-width:88%;padding:10px 14px;border-radius:16px;font-size:15px;line-height:1.4;overflow-wrap:anywhere;animation:sobe .35s both}
+.bol.bot{align-self:flex-start;background:rgba(22,22,26,.9);border:1px solid var(--linha);border-bottom-left-radius:4px}
+.bol.eu{align-self:flex-end;background:var(--verm);color:#fff;border-bottom-right-radius:4px}
+.pc{align-self:stretch;background:rgba(22,22,26,.9);border:1px solid var(--linha);border-radius:14px;padding:12px 14px;display:flex;gap:10px;justify-content:space-between;align-items:center}
+.pc b{display:block;font-weight:600;overflow-wrap:anywhere}.pc small{color:var(--suave)}
+.pc .v{font:italic 800 24px var(--tit);color:var(--ok);white-space:nowrap;text-align:right;line-height:1.05}
+.pc .q{display:block;font:600 12px var(--corpo);font-style:normal;margin-top:3px}
+.q.ok{color:var(--ok)}.q.al{color:var(--alerta)}.q.zr{color:var(--verm)}
+.sug{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.sug button,.lnk{background:none;border:1px solid var(--linha);color:var(--suave);border-radius:99px;padding:7px 13px;font:500 13px var(--corpo)}
+.cx{position:sticky;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;gap:8px;background:rgba(10,10,12,.94);padding:8px 0}
+.cx input,.fo input,.fo textarea{width:100%;padding:13px 14px;border-radius:12px;border:1px solid var(--linha);background:#0a0a0c;color:var(--texto);font:500 16px var(--corpo)}
+.cx button,.fo button.go{border:0;border-radius:12px;background:var(--verm);color:#fff;font:600 16px var(--corpo);padding:0 18px}
+.fo label{display:block;font-size:13px;color:var(--suave);margin:12px 0 5px}
+.fo textarea{min-height:92px;resize:vertical}
+.fo button.go{width:100%;padding:14px;margin-top:16px;font-size:17px}
+.fo .er{color:var(--verm);min-height:1.3em;margin-top:10px;font-size:14px}
+.zap{display:block;text-align:center;background:#1fa855;color:#fff;border-radius:12px;padding:13px;font:600 16px var(--corpo);text-decoration:none;margin-top:12px}
 </style>
 </head>
 <body>
@@ -388,6 +409,8 @@ main{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 <div id="aviso" role="status"></div>
 <main id="app"><p class="vazio" style="justify-content:center;padding:60px 0">Carregando…</p></main>
 <main id="promo" hidden></main>
+<main id="peca" hidden></main>
+<main id="orc" hidden></main>
 <nav id="nav"></nav>
 <div id="zoom"><img alt="Foto do serviço"></div>
 <script>
@@ -415,7 +438,7 @@ const IC = { // ícones simples de linha (nada de emoji colorido)
   cam: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>',
   clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
-  moto: '<circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17 9 10h5l3 3.5 1.5 3.5M9 10 7.5 7H5M14 10l1.5-4H18"/>'
+  moto: '<circle cx="5.2" cy="16.6" r="3.4"/><circle cx="18.8" cy="16.6" r="3.4"/><path d="M18.8 16.6 15.9 9.4M14.6 8.4h3.4M5.2 16.6l4-2.3M6.3 12.6l-1.9-.7M15.9 9.4l2 1.1"/><path fill="currentColor" d="M6.3 12.6c.6-1.7 2-2.7 3.8-2.7h3.6l2.5 2.5-3.3 2.4H9.2z"/>'
 };
 const ic = n => `<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">${IC[n]}</svg>`;
 const IDX = { aberta: 0, andamento: 1, pronta: 2, entregue: 3 };
@@ -559,7 +582,7 @@ function confete() { const cs = ['#e1101a', '#ff7a18', '#f5a524', '#2fbf71', '#4
 
 function monta() { // esqueleto da página: criado 1 vez só (assim a moto "anda" suave quando a etapa muda)
   $('#app').innerHTML = `
-  <header class="entra"><img src="logo.png" alt="Matheus Motos"><div class="nome">Matheus Motos<small>Acompanhe sua revisão ao vivo</small></div><span class="chipn" id="num"></span></header>
+  <header class="entra"><img src="logo.png" alt="MJ Motos"><div class="nome">MJ Motos<small>Acompanhe sua revisão ao vivo</small></div><span class="chipn" id="num"></span></header>
   <section class="card hero entra" id="hero"></section>
   <section class="card entra"><h2>Andamento</h2>
     <div class="road"><div class="trilho"><div class="fill" id="fill"></div></div><div class="moto-ico" id="motoIco">${ic('moto')}</div>
@@ -659,7 +682,7 @@ async function atualiza() {
     const d = await rpc('pdv_acompanhar', { p_token: token }); falhas = 0;
     const s = JSON.stringify(d); if (s !== ultimo) { ultimo = s; desenha(d); }
   } catch (e) {
-    if (!ultimo) $('#app').innerHTML = '<div class="card erro"><span class="em">' + ic('search') + '</span><h2 style="justify-content:center">Link não encontrado</h2><p class="vazio" style="justify-content:center">Confira a placa ou peça um novo link à Matheus Motos.</p><p style="margin-top:16px"><a href="#" onclick="trocaPlaca();return false" style="color:var(--suave)">Entrar pela placa</a></p></div>';
+    if (!ultimo) $('#app').innerHTML = '<div class="card erro"><span class="em">' + ic('search') + '</span><h2 style="justify-content:center">Link não encontrado</h2><p class="vazio" style="justify-content:center">Confira a placa ou peça um novo link à MJ Motos.</p><p style="margin-top:16px"><a href="#" onclick="trocaPlaca();return false" style="color:var(--suave)">Entrar pela placa</a></p></div>';
     else if (++falhas > 3) $('#rod').textContent = 'Sem conexão… tentando de novo';
   }
 }
@@ -734,13 +757,14 @@ IC.tag='<path d="M20.59 13.41 13.42 20.58a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2
 const BRL = v => 'R$ ' + Number(v || 0).toFixed(2).replace('.', ',');
 let aba = 'moto', PR = null;
 function pintaNav() {
-  $('#nav').innerHTML = `<button class="${aba === 'moto' ? 'on' : ''}" onclick="abre('moto')">${ic('moto')}Minha moto</button>
-   <button class="${aba === 'promo' ? 'on' : ''}" onclick="abre('promo')">${ic('tag')}Promoções<i>${PR && PR.length ? PR.length : ''}</i></button>`;
+  const b = (k, i, t, x) => `<button class="${aba === k ? 'on' : ''}" onclick="abre('${k}')">${ic(i)}${t}${x || ''}</button>`;
+  $('#nav').innerHTML = b('moto', 'moto', 'Minha moto') + b('peca', 'search', 'Consultar peça') + b('orc', 'wrench', 'Orçamento') +
+    b('promo', 'tag', 'Promoções', `<i>${PR && PR.length ? PR.length : ''}</i>`);
 }
-function abre(a) { if (a !== aba && window.mjCurta) mjCurta(); aba = a; $('#app').hidden = a !== 'moto'; $('#promo').hidden = a !== 'promo'; pintaNav(); window.scrollTo(0, 0); if (a === 'promo') promos(); }
+function abre(a) { if (a !== aba && window.mjCurta) mjCurta(); aba = a; ['moto:app', 'promo:promo', 'peca:peca', 'orc:orc'].forEach(x => { const [k, id] = x.split(':'); $('#' + id).hidden = a !== k; }); pintaNav(); window.scrollTo(0, 0); if (a === 'promo') promos(); if (a === 'peca') telaPeca(); if (a === 'orc') telaOrc(); }
 function pintaPromos() {
   const L = PR || [];
-  $('#promo').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Promoções<small>Ofertas da Matheus Motos</small></div></header>` +
+  $('#promo').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Promoções<small>Ofertas da MJ Motos</small></div></header>` +
     (L.length ? L.map(p => { const off = p.preco_de > p.preco_por ? Math.round((1 - p.preco_por / p.preco_de) * 100) : 0;
       return `<section class="card pr entra">${off ? `<span class="off">-${off}%</span>` : ''}<h3>${esc(p.nome)}</h3>${p.descricao ? `<p>${esc(p.descricao)}</p>` : ''}
         ${p.preco_de ? `<div class="de">de ${BRL(p.preco_de)}</div>` : ''}<div class="por">${BRL(p.preco_por)}</div>
@@ -752,12 +776,80 @@ async function promos() {
   pintaNav(); if (aba === 'promo') pintaPromos();
 }
 pintaNav(); promos(); setInterval(() => { if (!document.hidden) promos(); }, 60000);
+
+/* ===== CONSULTA DE PEÇA (chat automático) e PEDIDO DE ORÇAMENTO ===== */
+const WHATS_LOJA = ''; // WhatsApp da loja com DDI+DDD, só números. Ex.: '5547999999999'. Vazio = esconde o botão de WhatsApp.
+const wa = t => 'https://wa.me/' + WHATS_LOJA + '?text=' + encodeURIComponent(t);
+let CH = null;
+function bolha(t, de) { const d = document.createElement('div'); d.className = 'bol ' + de; d.innerHTML = t; $('#chat').appendChild(d); d.scrollIntoView({ block: 'end', behavior: 'smooth' }); return d; }
+function cartaoPeca(p) {
+  const q = Math.floor(+p.estoque || 0);
+  const est = q <= 0 ? '<span class="q zr">Sem estoque no momento</span>' : q === 1 ? '<span class="q al">Última unidade</span>' : q <= 3 ? `<span class="q al">${q} em estoque</span>` : `<span class="q ok">${q} em estoque</span>`;
+  const d = document.createElement('div'); d.className = 'pc';
+  d.innerHTML = `<span style="min-width:0"><b>${esc(p.nome)}</b>${p.categoria ? `<small>${esc(p.categoria)}</small>` : ''}</span><span class="v">${BRL(p.preco)}${est}</span>`;
+  $('#chat').appendChild(d);
+}
+function telaPeca() {
+  if (CH) return;
+  CH = true;
+  $('#peca').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Consultar peça<small>Veja preço e estoque na hora</small></div></header>
+    <div class="chat" id="chat"></div>
+    <div class="sug" id="sug"><button>pastilha de freio</button><button>kit relação</button><button>óleo de motor</button><button>vela</button></div>
+    <form class="cx" id="cxf"><input id="cxi" placeholder="Digite a peça. Ex.: pastilha CG 160" autocomplete="off" maxlength="60"><button>Enviar</button></form>`;
+  bolha('Olá! Eu sou o robô da <b>MJ Motos</b>. Digite o nome da peça que você procura e eu confiro o preço e quantos temos em estoque.', 'bot');
+  $('#sug').onclick = e => { const b = e.target.closest('button'); if (b) pergunta(b.textContent); };
+  $('#cxf').onsubmit = e => { e.preventDefault(); const v = $('#cxi').value.trim(); if (v) { $('#cxi').value = ''; pergunta(v); } };
+}
+async function pergunta(txt) {
+  $('#sug').hidden = true;
+  bolha(esc(txt), 'eu');
+  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|e ai|e aí)\W*$/i.test(txt)) return bolha('Oi! Qual peça você está procurando?', 'bot');
+  const esp = bolha('Consultando o estoque…', 'bot');
+  try {
+    const L = await rpc('pdv_peca_consultar', { p_busca: txt });
+    esp.remove();
+    if (!L || !L.length) {
+      bolha('Não encontrei essa peça no estoque agora. Tente outro nome (ex.: só “pastilha”), ou peça um orçamento que a gente confere e te responde no WhatsApp.', 'bot');
+      return bolha('<button class="lnk" onclick="abre(\'orc\')">Pedir orçamento</button>', 'bot');
+    }
+    bolha(L.length === 1 ? 'Achei isto:' : `Achei ${L.length} opções:`, 'bot');
+    L.forEach(cartaoPeca);
+    bolha('Os valores podem mudar e a quantidade é a do estoque de agora. Quer outra peça ou um orçamento completo? <button class="lnk" onclick="abre(\'orc\')">Pedir orçamento</button>', 'bot');
+  } catch (e) {
+    esp.remove();
+    bolha(/function|schema cache|could not find/i.test(e.message) ? 'A consulta ainda não foi liberada: falta rodar o CONSULTA-PECA-ORCAMENTO.sql no Supabase.' : 'Sem conexão no momento. Tente de novo.', 'bot');
+  }
+}
+function telaOrc() {
+  if ($('#orc').dataset.ok) return;
+  $('#orc').dataset.ok = 1;
+  $('#orc').innerHTML = `<header class="entra"><img src="logo.png" alt=""><div class="nome">Fazer orçamento<small>Respondemos pelo seu WhatsApp</small></div></header>
+    <section class="card fo"><form id="fo">
+      <label>Seu nome</label><input id="oN" maxlength="80" autocomplete="name">
+      <label>Seu WhatsApp (com DDD)</label><input id="oW" inputmode="tel" maxlength="16" placeholder="(47) 99999-9999" autocomplete="tel">
+      <label>Moto (modelo e ano)</label><input id="oM" maxlength="80" placeholder="Ex.: CG 160 Titan 2022">
+      <label>Placa (opcional)</label><input id="oP" maxlength="8" autocapitalize="characters" placeholder="ABC1D23" style="text-transform:uppercase">
+      <label>O que você precisa? (peças ou serviço)</label><textarea id="oT" maxlength="600" placeholder="Ex.: pastilha de freio dianteira e troca de óleo"></textarea>
+      <div class="er" id="oE"></div>
+      <button class="go">Pedir orçamento</button>
+    </form></section>`;
+  $('#oW').oninput = e => { let v = e.target.value.replace(/\D/g, '').slice(0, 11); e.target.value = v.length > 6 ? `(${v.slice(0, 2)}) ${v.slice(2, v.length > 10 ? 7 : 6)}-${v.slice(v.length > 10 ? 7 : 6)}` : v.length > 2 ? `(${v.slice(0, 2)}) ${v.slice(2)}` : v; };
+  $('#fo').onsubmit = async e => {
+    e.preventDefault(); const b = e.target.querySelector('button'); b.disabled = true; $('#oE').textContent = '';
+    const d = { p_nome: $('#oN').value, p_whatsapp: $('#oW').value, p_moto: $('#oM').value, p_placa: $('#oP').value, p_pecas: $('#oT').value, p_obs: null };
+    try {
+      await rpc('pdv_orcamento_site_enviar', d);
+      const msg = `Olá! Pedi um orçamento pelo site da MJ Motos.\nNome: ${d.p_nome}\nMoto: ${d.p_moto || '-'}\nPrecisa de: ${d.p_pecas}`;
+      $('#orc').querySelector('.card').innerHTML = `<h2>Pedido enviado</h2><p style="color:var(--suave);margin:0">Recebemos seu pedido, ${esc(d.p_nome.split(' ')[0])}. Vamos chamar você no WhatsApp <b style="color:var(--texto)">${esc(d.p_whatsapp)}</b> com o valor da peça e o orçamento.</p>${WHATS_LOJA ? `<a class="zap" target="_blank" rel="noopener" href="${wa(msg)}">Falar agora no WhatsApp</a>` : ''}<p style="margin:14px 0 0"><button class="lnk" onclick="delete $('#orc').dataset.ok;telaOrc()">Fazer outro pedido</button></p>`;
+    } catch (er) { b.disabled = false; $('#oE').textContent = /function|schema cache|could not find/i.test(er.message) ? 'Falta rodar o CONSULTA-PECA-ORCAMENTO.sql no Supabase.' : er.message; }
+  };
+}
 /* ===== APP INSTALÁVEL (cliente) =====
    Guarda o link da moto no celular e deixa instalar na tela inicial. O manifesto é montado na hora com o token do cliente,
    assim o app instalado (inclusive no iPhone) já abre direto na moto dele. */
 (function(){
  try{const base=new URL('./',location.href).href,u=new URL(location.href);u.hash='';if(token)u.searchParams.set('t',token);
-  const m={name:'Matheus Motos — Minha moto',short_name:'Minha moto',lang:'pt-BR',display:'standalone',background_color:'#0a0a0c',theme_color:'#0a0a0c',start_url:u.href,scope:base,id:base+'cliente',icons:[{src:base+'icone-192.png',sizes:'192x192',type:'image/png'},{src:base+'icone-512.png',sizes:'512x512',type:'image/png'}]};
+  const m={name:'MJ Motos — Minha moto',short_name:'Minha moto',lang:'pt-BR',display:'standalone',background_color:'#0a0a0c',theme_color:'#0a0a0c',start_url:u.href,scope:base,id:base+'cliente',icons:[{src:base+'icone-192.png',sizes:'192x192',type:'image/png'},{src:base+'icone-512.png',sizes:'512x512',type:'image/png'}]};
   if(token)document.getElementById('mf').href=URL.createObjectURL(new Blob([JSON.stringify(m)],{type:'application/manifest+json'}))}catch{}
  if('serviceWorker' in navigator)navigator.serviceWorker.register('sw-cliente.js').catch(()=>{});
  const jaApp=matchMedia('(display-mode: standalone)').matches||navigator.standalone||!!window.Capacitor;
